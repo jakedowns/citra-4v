@@ -190,6 +190,22 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
     is_running = true;
     pause_emulation = false;
 
+    std::unique_ptr<Frontend::GraphicsContext> cpu_context{window->CreateSharedContext()};
+    if (Settings::values.use_asynchronous_gpu_emulation) {
+        cpu_context->MakeCurrent();
+    }
+
+    system.Renderer().Rasterizer()->LoadDiskResources(
+            !is_running, [](VideoCore::LoadCallbackStage stage, std::size_t value, std::size_t total) {
+                if(value%10 == 0 || value + 1 == total){
+                    LOG_INFO(Frontend, "Shader cache Stage {}: {}/{}", stage, value + 1, total);
+                }
+            });
+
+    if (Settings::values.use_asynchronous_gpu_emulation) {
+        cpu_context->DoneCurrent();
+    }
+
     SCOPE_EXIT({ TryShutdown(); });
 
     // Audio stretching on Android is only useful with lower framerates, disable it when fullspeed
