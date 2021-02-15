@@ -17,6 +17,9 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
+import android.os.Build;
+import android.os.Vibrator;
+import android.os.VibrationEffect;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -380,6 +383,9 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                     if (button.getBounds()
                             .contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex))) {
                         button.setPressedState(true);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                ((Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(VibrationEffect.EFFECT_CLICK);
+                            }
                         button.setTrackId(event.getPointerId(pointerIndex));
                         NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
                                 ButtonState.PRESSED);
