@@ -190,4 +190,8 @@ public final class InputOverlayDrawableDpad {
     public void setState(int pressState) {
         mPressState = pressState;
     }
+
+    public int getState() {
+        return mPressState;
+    }
 }

@@ -342,6 +342,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        boolean shouldVibrate = false;
+
         if (isInEditMode()) {
             return onTouchWhileEditing(event);
         }
@@ -383,9 +385,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                     if (button.getBounds()
                             .contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex))) {
                         button.setPressedState(true);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                ((Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(VibrationEffect.EFFECT_CLICK);
-                            }
+                        shouldVibrate = true;
                         button.setTrackId(event.getPointerId(pointerIndex));
                         NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
                                 ButtonState.PRESSED);
@@ -446,6 +446,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                         boolean down = false;
                         boolean left = false;
                         boolean right = false;
+                        int last_state = dpad.getState();
+
                         if (EmulationMenuSettings.getDpadSlideEnable() ||
                                 (event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
                                 (event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN) {
@@ -504,8 +506,21 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                             } else {
                                 dpad.setState(InputOverlayDrawableDpad.STATE_DEFAULT);
                             }
+
+                            shouldVibrate = shouldVibrate || (dpad.getState() != last_state &&
+                                    dpad.getState() != InputOverlayDrawableDpad.STATE_DEFAULT);
                         }
                     }
+                }
+            }
+
+            if (shouldVibrate) {
+                VibrationEffect effect = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    effect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
+                    ((Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(effect);
+                } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    ((Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(VibrationEffect.EFFECT_CLICK);
                 }
             }
         }
