@@ -8,6 +8,7 @@
 #include <boost/functional/hash.hpp>
 #include <boost/variant.hpp>
 #include "core/core.h"
+#include "core/frontend/scope_acquire_context.h"
 #include "video_core/renderer_opengl/gl_shader_disk_cache.h"
 #include "video_core/renderer_opengl/gl_shader_manager.h"
 #include "video_core/video_core.h"
@@ -241,6 +242,10 @@ public:
         shaders.emplace(key, std::move(stage));
     }
 
+    void Inject(const KeyConfigType& key, OGLShaderStage&& stage) {
+        shaders.emplace(key, std::move(stage));
+    }
+
 private:
     bool separable;
     std::unordered_map<KeyConfigType, OGLShaderStage> shaders;
@@ -291,6 +296,12 @@ public:
     void Inject(const KeyConfigType& key, std::string decomp, OGLProgram&& program) {
         OGLShaderStage stage{separable};
         stage.Inject(std::move(program));
+        const auto iter = shader_cache.emplace(std::move(decomp), std::move(stage)).first;
+        OGLShaderStage& cached_shader = iter->second;
+        shader_map.insert_or_assign(key, &cached_shader);
+    }
+
+    void Inject(const KeyConfigType& key, std::string decomp, OGLShaderStage&& stage) {
         const auto iter = shader_cache.emplace(std::move(decomp), std::move(stage)).first;
         OGLShaderStage& cached_shader = iter->second;
         shader_map.insert_or_assign(key, &cached_shader);
@@ -373,8 +384,8 @@ public:
     ShaderDiskCache disk_cache;
 };
 
-ShaderProgramManager::ShaderProgramManager(bool separable, bool is_amd)
-    : impl(std::make_unique<Impl>(separable, is_amd)) {}
+ShaderProgramManager::ShaderProgramManager(Frontend::EmuWindow& emu_window_, bool separable, bool is_amd)
+    : impl(std::make_unique<Impl>(separable, is_amd)), emu_window{emu_window_} {}
 
 ShaderProgramManager::~ShaderProgramManager() = default;
 
@@ -507,7 +518,7 @@ void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
     const auto LoadPrecompiledWorker =
         [&](std::size_t begin, std::size_t end, const std::vector<ShaderDiskCacheRaw>& raw_cache,
             const ShaderDecompiledMap& decompiled_map, const ShaderDumpsMap& dump_map) {
-            for (std::size_t i = 0; i < end; ++i) {
+            for (std::size_t i = begin; i < end; ++i) {
                 if (stop_loading || compilation_failed) {
                     return;
                 }
@@ -550,7 +561,6 @@ void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
                     if (raw.GetProgramType() == ProgramType::VS) {
                         auto [conf, setup] = BuildVSConfigFromRaw(raw);
                         std::scoped_lock lock(mutex);
-
                         impl->programmable_vertex_shaders.Inject(conf, decomp->second.result.code,
                                                                  std::move(shader));
                     } else if (raw.GetProgramType() == ProgramType::FS) {
@@ -627,13 +637,14 @@ void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
 
     compilation_failed = false;
 
-    const auto LoadTransferable = [&](std::size_t begin, std::size_t end,
-                                      const std::vector<ShaderDiskCacheRaw>& raw_cache) {
-        for (std::size_t i = 0; i < end; ++i) {
+    std::size_t built_shaders = 0; // It doesn't have be atomic since it's used behind a mutex
+    const auto LoadTransferable = [&](Frontend::GraphicsContext* context, std::size_t begin, std::size_t end) {
+        Frontend::ScopeAcquireContext scope(*context);
+        for (std::size_t i = begin; i < end; ++i) {
             if (stop_loading || compilation_failed) {
                 return;
             }
-            const auto& raw{raw_cache[i]};
+            const auto& raw{raws[i]};
             const u64 unique_identifier{raw.GetUniqueIdentifier()};
 
             bool sanitize_mul = false;
@@ -642,23 +653,25 @@ void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
             // Otherwise decompile and build the shader at boot and save the result to the
             // precompiled file
             if (raw.GetProgramType() == ProgramType::VS) {
-                // TODO: This isn't the ideal place to lock, since we really only want to
-                // lock access to the shared cache
                 auto [conf, setup] = BuildVSConfigFromRaw(raw);
-                std::scoped_lock lock(mutex);
-                auto [h, r] = impl->programmable_vertex_shaders.Get(conf, setup);
-                handle = h;
-                result = std::move(r);
+                result = GenerateVertexShader(setup, conf, impl->separable);
+                OGLShaderStage stage{impl->separable};
+                stage.Create(result->code.c_str(), GL_VERTEX_SHADER);
+                handle = stage.GetHandle();
                 sanitize_mul = conf.state.sanitize_mul;
+                std::scoped_lock lock(mutex);
+                impl->programmable_vertex_shaders.Inject(conf, result->code,std::move(stage));
             } else if (raw.GetProgramType() == ProgramType::FS) {
                 PicaFSConfig conf = PicaFSConfig::BuildFromRegs(raw.GetRawShaderConfig());
+                result = GenerateFragmentShader(conf, impl->separable);
+                OGLShaderStage stage{impl->separable};
+                stage.Create(result->code.c_str(), GL_FRAGMENT_SHADER);
+                handle = stage.GetHandle();
                 std::scoped_lock lock(mutex);
-                auto [h, r] = impl->fragment_shaders.Get(conf);
-                handle = h;
-                result = std::move(r);
+                impl->fragment_shaders.Inject(conf, std::move(stage));
             } else {
                 // Unsupported shader type got stored somehow so nuke the cache
-                LOG_ERROR(Frontend, "failed to load raw programtype {}", raw.GetProgramType());
+                LOG_ERROR(Frontend, "failed to load raw ProgramType {}", raw.GetProgramType());
                 compilation_failed = true;
                 return;
             }
@@ -668,6 +681,8 @@ void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
                 compilation_failed = true;
                 return;
             }
+
+            std::scoped_lock lock(mutex);
             // If this is a new separable shader, add it the precompiled cache
             if (impl->separable && result) {
                 disk_cache.SaveDecompiled(unique_identifier, *result, sanitize_mul);
@@ -676,12 +691,27 @@ void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
             }
 
             if (callback) {
-                callback(VideoCore::LoadCallbackStage::Build, i, raw_cache.size());
+                callback(VideoCore::LoadCallbackStage::Build, ++built_shaders, raws.size());
             }
         }
     };
 
-    LoadTransferable(0, raws.size(), raws);
+    const std::size_t num_workers{std::max(1U, std::thread::hardware_concurrency())};
+    const std::size_t bucket_size{transferable->size() / num_workers};
+    std::vector<std::unique_ptr<Frontend::GraphicsContext>> contexts(num_workers);
+    std::vector<std::thread> threads(num_workers);
+    for (std::size_t i = 0; i < num_workers; ++i) {
+        const bool is_last_worker = i + 1 == num_workers;
+        const std::size_t start{bucket_size * i};
+        const std::size_t end{is_last_worker ? transferable->size() : start + bucket_size};
+
+        // On some platforms the shared context has to be created from the GUI thread
+        contexts[i] = emu_window.CreateSharedContext();
+        threads[i] = std::thread(LoadTransferable, contexts[i].get(), start, end);
+    }
+    for (auto& thread : threads) {
+        thread.join();
+    }
 
     if (compilation_failed) {
         disk_cache.InvalidateAll();
