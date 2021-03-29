@@ -119,6 +119,29 @@ static bool HandleCoreError(Core::System::ResultStatus result, const std::string
                                         env->NewStringUTF(details.c_str())) != JNI_FALSE;
 }
 
+static jobject ToJavaLoadCallbackStage(VideoCore::LoadCallbackStage stage) {
+    static const std::map<VideoCore::LoadCallbackStage, const char*> LoadCallbackStageMap{
+            {VideoCore::LoadCallbackStage::Prepare, "Prepare"},
+            {VideoCore::LoadCallbackStage::Decompile, "Decompile"},
+            {VideoCore::LoadCallbackStage::Build, "Build"},
+            {VideoCore::LoadCallbackStage::Complete, "Complete"},
+    };
+
+    const auto name = LoadCallbackStageMap.at(stage);
+
+    JNIEnv* env = IDCache::GetEnvForThread();
+
+    const jclass load_callback_stage_class = IDCache::GetDiskCacheLoadCallbackStageClass();
+    return env->GetStaticObjectField(
+            load_callback_stage_class, env->GetStaticFieldID(load_callback_stage_class, name,
+                                                    "Lorg/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage;"));
+}
+
+static void LoadDiskCacheProgress(VideoCore::LoadCallbackStage stage, int progress, int max) {
+    JNIEnv* env = IDCache::GetEnvForThread();
+    env->CallStaticVoidMethod(IDCache::GetDiskCacheProgressClass(), IDCache::GetDiskCacheLoadProgress(), ToJavaLoadCallbackStage(stage), (jint) progress, (jint) max);
+}
+
 static Camera::NDK::Factory* g_ndk_factory{};
 
 static void TryShutdown() {
@@ -190,21 +213,22 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
     is_running = true;
     pause_emulation = false;
 
+    LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Prepare, 0, 0);
+
     std::unique_ptr<Frontend::GraphicsContext> cpu_context{window->CreateSharedContext()};
     if (Settings::values.use_asynchronous_gpu_emulation) {
         cpu_context->MakeCurrent();
     }
 
     system.Renderer().Rasterizer()->LoadDiskResources(
-            !is_running, [](VideoCore::LoadCallbackStage stage, std::size_t value, std::size_t total) {
-                if(value%10 == 0 || value + 1 == total){
-                    LOG_INFO(Frontend, "Shader cache Stage {}: {}/{}", stage, value + 1, total);
-                }
-            });
+            !is_running, &LoadDiskCacheProgress
+            );
 
     if (Settings::values.use_asynchronous_gpu_emulation) {
         cpu_context->DoneCurrent();
     }
+
+    LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Complete, 0, 0);
 
     SCOPE_EXIT({ TryShutdown(); });
 
