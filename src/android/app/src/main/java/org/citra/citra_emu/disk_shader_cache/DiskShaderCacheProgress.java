@@ -93,11 +93,12 @@ public class DiskShaderCacheProgress {
 
         private void onUpdateProgress(LoadCallbackStage stage, int progress, int max) {
             updateHandler.post(()->{
+                final EmulationActivity emulationActivity = NativeLibrary.sEmulationActivity.get();
                 progressBar.setProgress(progress);
                 progressBar.setMax(max);
                 progressText.setText(String.format("%d/%d", progress, max));
                 if (stage == LoadCallbackStage.Build){
-                    dialog.setMessage("Building shaders");
+                    dialog.setMessage(emulationActivity.getString(R.string.disk_cache_building));
                 }
             });
         }
@@ -106,7 +107,7 @@ public class DiskShaderCacheProgress {
     private static void prepareDialog() {
         NativeLibrary.sEmulationActivity.get().runOnUiThread(() -> {
             final EmulationActivity emulationActivity = NativeLibrary.sEmulationActivity.get();
-            fragment = ProgressDialogFragment.newInstance("Loading...", "Preparing shaders");
+            fragment = ProgressDialogFragment.newInstance(emulationActivity.getString(R.string.disk_shaders_loading), emulationActivity.getString(R.string.disk_shaders_preparing));
             fragment.show(emulationActivity.getSupportFragmentManager(), "diskShaders");
         });
 
