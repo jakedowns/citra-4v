@@ -162,6 +162,8 @@ private:
     /// Get user's precompiled directory path
     std::string GetPrecompiledDir() const;
 
+    std::string GetPrecompiledShaderDir() const;
+
     /// Get user's shader directory path
     std::string GetBaseDir() const;
 

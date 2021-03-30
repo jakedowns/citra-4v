@@ -534,7 +534,7 @@ bool ShaderDiskCache::EnsureDirectories() const {
 
     return CreateDir(FileUtil::GetUserPath(FileUtil::UserPath::ShaderDir)) &&
            CreateDir(GetBaseDir()) && CreateDir(GetTransferableDir()) &&
-           CreateDir(GetPrecompiledDir());
+           CreateDir(GetPrecompiledDir()) && CreateDir(GetPrecompiledShaderDir());
 }
 
 std::string ShaderDiskCache::GetTransferablePath() {
@@ -542,7 +542,7 @@ std::string ShaderDiskCache::GetTransferablePath() {
 }
 
 std::string ShaderDiskCache::GetPrecompiledPath() {
-    return FileUtil::SanitizePath(GetPrecompiledDir() + DIR_SEP_CHR + GetTitleID() + ".bin");
+    return FileUtil::SanitizePath(GetPrecompiledShaderDir() + DIR_SEP_CHR + GetTitleID() + ".bin");
 }
 
 std::string ShaderDiskCache::GetTransferableDir() const {
@@ -551,6 +551,13 @@ std::string ShaderDiskCache::GetTransferableDir() const {
 
 std::string ShaderDiskCache::GetPrecompiledDir() const {
     return GetBaseDir() + DIR_SEP "precompiled";
+}
+
+std::string ShaderDiskCache::GetPrecompiledShaderDir() const {
+    if (separable) {
+        return GetPrecompiledDir() + DIR_SEP "separable";
+    }
+    return GetPrecompiledDir() + DIR_SEP "conventional";
 }
 
 std::string ShaderDiskCache::GetBaseDir() const {
