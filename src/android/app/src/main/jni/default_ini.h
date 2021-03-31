@@ -91,6 +91,12 @@ udp_pad_index=
 # 0: Interpreter (slow), 1 (default): JIT (fast)
 use_cpu_jit =
 
+# Change the Clock Frequency of the emulated 3DS CPU.
+# Underclocking can increase the performance of the game at the risk of freezing.
+# Overclocking may fix lag that happens on console, but also comes with the risk of freezing.
+# Range is any positive integer (but we suspect 25 - 400 is a good idea) Default is 100
+cpu_clock_percentage =
+
 [Renderer]
 # Whether to render using GLES or OpenGL
 # 0: OpenGL, 1 (default): GLES
@@ -104,6 +110,10 @@ use_hw_renderer =
 # 0: Software, 1 (default): Hardware
 use_hw_shader =
 
+# Whether to use separable shaders to emulate 3DS shaders (macOS only)
+# 0: Off (Default), 1 : On
+separable_shader =
+
 # Whether to use accurate multiplication in hardware shaders
 # 0: Off (Default. Faster, but causes issues in some games) 1: On (Slower, but correct)
 shaders_accurate_mul =
@@ -115,6 +125,15 @@ use_asynchronous_gpu_emulation =
 # Whether to use the Just-In-Time (JIT) compiler for shader emulation
 # 0: Interpreter (slow), 1 (default): JIT (fast)
 use_shader_jit =
+
+# Forces VSync on the display thread. Usually doesn't impact performance, but on some drivers it can
+# so only turn this off if you notice a speed difference.
+# 0: Off, 1 (default): On
+use_vsync_new =
+
+# Reduce stuttering by storing and loading generated shaders to disk
+# 0: Off, 1 (default. On)
+use_disk_shader_cache =
 
 # Resolution scale factor
 # 0: Auto (scales resolution to window size), 1: Native 3DS screen resolution, Otherwise a scale
