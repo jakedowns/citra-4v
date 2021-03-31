@@ -2,26 +2,22 @@ package org.citra.citra_emu.disk_shader_cache;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 
-import org.citra.citra_emu.CitraApplication;
 import org.citra.citra_emu.NativeLibrary;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.activities.EmulationActivity;
+import org.citra.citra_emu.utils.Log;
 
 import java.util.Objects;
 
@@ -77,12 +73,12 @@ public class DiskShaderCacheProgress {
             builder.setTitle(title);
             builder.setMessage(message);
             builder.setView(view);
-            builder.setNegativeButton(R.string.abort_button, (dialog, whichButton) -> {
-
-            });
+            builder.setNegativeButton(android.R.string.cancel, null);
 
             dialog = builder.create();
             dialog.create();
+
+            dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener((v) -> emulationActivity.onBackPressed());
 
             synchronized (finishLock) {
                 finishLock.notifyAll();
@@ -91,15 +87,12 @@ public class DiskShaderCacheProgress {
             return dialog;
         }
 
-        private void onUpdateProgress(LoadCallbackStage stage, int progress, int max) {
+        private void onUpdateProgress(String msg, int progress, int max) {
             updateHandler.post(()->{
-                final EmulationActivity emulationActivity = NativeLibrary.sEmulationActivity.get();
                 progressBar.setProgress(progress);
                 progressBar.setMax(max);
                 progressText.setText(String.format("%d/%d", progress, max));
-                if (stage == LoadCallbackStage.Build){
-                    dialog.setMessage(emulationActivity.getString(R.string.disk_cache_building));
-                }
+                dialog.setMessage(msg);
             });
         }
     }
@@ -107,7 +100,7 @@ public class DiskShaderCacheProgress {
     private static void prepareDialog() {
         NativeLibrary.sEmulationActivity.get().runOnUiThread(() -> {
             final EmulationActivity emulationActivity = NativeLibrary.sEmulationActivity.get();
-            fragment = ProgressDialogFragment.newInstance(emulationActivity.getString(R.string.disk_shaders_loading), emulationActivity.getString(R.string.disk_shaders_preparing));
+            fragment = ProgressDialogFragment.newInstance(emulationActivity.getString(R.string.loading), emulationActivity.getString(R.string.preparing_shaders));
             fragment.show(emulationActivity.getSupportFragmentManager(), "diskShaders");
         });
 
@@ -120,13 +113,20 @@ public class DiskShaderCacheProgress {
     }
 
     public static void loadProgress(LoadCallbackStage stage, int progress, int max) {
+        final EmulationActivity emulationActivity = NativeLibrary.sEmulationActivity.get();
+        if (emulationActivity == null) {
+            return;
+        }
+
         switch (stage) {
             case Prepare:
                 prepareDialog();
                 break;
             case Decompile:
+                fragment.onUpdateProgress(emulationActivity.getString(R.string.preparing_shaders), progress, max);
+                break;
             case Build:
-                fragment.onUpdateProgress(stage, progress, max);
+                fragment.onUpdateProgress(emulationActivity.getString(R.string.building_shaders), progress, max);
                 break;
             case Complete:
                 // Workaround for when dialog is dismissed when the app is in the background
