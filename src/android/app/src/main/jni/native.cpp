@@ -121,10 +121,10 @@ static bool HandleCoreError(Core::System::ResultStatus result, const std::string
 
 static jobject ToJavaLoadCallbackStage(VideoCore::LoadCallbackStage stage) {
     static const std::map<VideoCore::LoadCallbackStage, const char*> LoadCallbackStageMap{
-            {VideoCore::LoadCallbackStage::Prepare, "Prepare"},
-            {VideoCore::LoadCallbackStage::Decompile, "Decompile"},
-            {VideoCore::LoadCallbackStage::Build, "Build"},
-            {VideoCore::LoadCallbackStage::Complete, "Complete"},
+        {VideoCore::LoadCallbackStage::Prepare, "Prepare"},
+        {VideoCore::LoadCallbackStage::Decompile, "Decompile"},
+        {VideoCore::LoadCallbackStage::Build, "Build"},
+        {VideoCore::LoadCallbackStage::Complete, "Complete"},
     };
 
     const auto name = LoadCallbackStageMap.at(stage);
@@ -133,13 +133,17 @@ static jobject ToJavaLoadCallbackStage(VideoCore::LoadCallbackStage stage) {
 
     const jclass load_callback_stage_class = IDCache::GetDiskCacheLoadCallbackStageClass();
     return env->GetStaticObjectField(
-            load_callback_stage_class, env->GetStaticFieldID(load_callback_stage_class, name,
-                                                    "Lorg/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage;"));
+        load_callback_stage_class,
+        env->GetStaticFieldID(
+            load_callback_stage_class, name,
+            "Lorg/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage;"));
 }
 
 static void LoadDiskCacheProgress(VideoCore::LoadCallbackStage stage, int progress, int max) {
     JNIEnv* env = IDCache::GetEnvForThread();
-    env->CallStaticVoidMethod(IDCache::GetDiskCacheProgressClass(), IDCache::GetDiskCacheLoadProgress(), ToJavaLoadCallbackStage(stage), (jint) progress, (jint) max);
+    env->CallStaticVoidMethod(IDCache::GetDiskCacheProgressClass(),
+                              IDCache::GetDiskCacheLoadProgress(), ToJavaLoadCallbackStage(stage),
+                              (jint)progress, (jint)max);
 }
 
 static Camera::NDK::Factory* g_ndk_factory{};
@@ -220,9 +224,7 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
         cpu_context->MakeCurrent();
     }
 
-    system.Renderer().Rasterizer()->LoadDiskResources(
-            !is_running, &LoadDiskCacheProgress
-            );
+    system.Renderer().Rasterizer()->LoadDiskResources(!is_running, &LoadDiskCacheProgress);
 
     if (Settings::values.use_asynchronous_gpu_emulation) {
         cpu_context->DoneCurrent();

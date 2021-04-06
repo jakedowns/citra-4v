@@ -131,8 +131,8 @@ private:
     std::optional<ShaderDiskCacheDecompiled> LoadDecompiledEntry();
 
     /// Saves a decompiled entry to the passed file. Does not check for collisions.
-    void SaveDecompiledToFile(FileUtil::IOFile& file, u64 unique_identifier, const ShaderDecompiler::ProgramResult& code,
-                              bool sanitize_mul);
+    void SaveDecompiledToFile(FileUtil::IOFile& file, u64 unique_identifier,
+                              const ShaderDecompiler::ProgramResult& code, bool sanitize_mul);
 
     /// Saves a decompiled entry to the virtual precompiled cache. Does not check for collisions.
     bool SaveDecompiledToCache(u64 unique_identifier, const ShaderDecompiler::ProgramResult& code,

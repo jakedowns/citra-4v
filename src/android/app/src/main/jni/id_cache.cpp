@@ -145,10 +145,10 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
         env->NewGlobalRef(env->FindClass("org/citra/citra_emu/NativeLibrary$SavestateInfo")));
     s_core_error_class = reinterpret_cast<jclass>(
         env->NewGlobalRef(env->FindClass("org/citra/citra_emu/NativeLibrary$CoreError")));
-    s_disk_cache_progress_class = reinterpret_cast<jclass>(
-        env->NewGlobalRef(env->FindClass("org/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress")));
-    s_load_callback_stage_class = reinterpret_cast<jclass>(
-        env->NewGlobalRef(env->FindClass("org/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage")));
+    s_disk_cache_progress_class = reinterpret_cast<jclass>(env->NewGlobalRef(
+        env->FindClass("org/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress")));
+    s_load_callback_stage_class = reinterpret_cast<jclass>(env->NewGlobalRef(env->FindClass(
+        "org/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage")));
 
     s_on_core_error = env->GetStaticMethodID(
         s_native_library_class, "OnCoreError",
@@ -169,8 +169,9 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
         env->GetStaticMethodID(s_native_library_class, "RequestCameraPermission", "()Z");
     s_request_mic_permission =
         env->GetStaticMethodID(s_native_library_class, "RequestMicPermission", "()Z");
-    s_disk_cache_load_progress =
-        env->GetStaticMethodID(s_disk_cache_progress_class, "loadProgress", "(Lorg/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage;II)V");
+    s_disk_cache_load_progress = env->GetStaticMethodID(
+        s_disk_cache_progress_class, "loadProgress",
+        "(Lorg/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage;II)V");
 
     MiiSelector::InitJNI(env);
     SoftwareKeyboard::InitJNI(env);

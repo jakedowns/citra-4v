@@ -27,7 +27,8 @@ static u64 GetUniqueIdentifier(const Pica::Regs& regs, const ProgramCode& code) 
 }
 
 static OGLProgram GeneratePrecompiledProgram(const ShaderDiskCacheDump& dump,
-                                             const std::set<GLenum>& supported_formats, bool separable) {
+                                             const std::set<GLenum>& supported_formats,
+                                             bool separable) {
 
     if (supported_formats.find(dump.binary_format) == supported_formats.end()) {
         LOG_INFO(Render_OpenGL, "Precompiled cache entry with unsupported format - removing");
@@ -384,7 +385,8 @@ public:
     ShaderDiskCache disk_cache;
 };
 
-ShaderProgramManager::ShaderProgramManager(Frontend::EmuWindow& emu_window_, bool separable, bool is_amd)
+ShaderProgramManager::ShaderProgramManager(Frontend::EmuWindow& emu_window_, bool separable,
+                                           bool is_amd)
     : impl(std::make_unique<Impl>(separable, is_amd)), emu_window{emu_window_} {}
 
 ShaderProgramManager::~ShaderProgramManager() = default;
@@ -469,9 +471,11 @@ void ShaderProgramManager::ApplyTo(OpenGLState& state) {
                 cached_program = std::move(disk_program);
                 impl->disk_program_cache.erase(unique_identifier);
             } else {
-                cached_program.Create(false, {impl->current.vs, impl->current.gs, impl->current.fs});
+                cached_program.Create(false,
+                                      {impl->current.vs, impl->current.gs, impl->current.fs});
                 auto& disk_cache = impl->disk_cache;
-                disk_cache.SaveDumpToFile(unique_identifier, cached_program.handle, VideoCore::g_hw_shader_accurate_mul);
+                disk_cache.SaveDumpToFile(unique_identifier, cached_program.handle,
+                                          VideoCore::g_hw_shader_accurate_mul);
             }
             SetShaderUniformBlockBindings(cached_program.handle);
             SetShaderSamplerBindings(cached_program.handle);
@@ -510,106 +514,108 @@ void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
     }
     std::vector<std::size_t> load_raws_index;
     // Loads both decompiled and precompiled shaders from the cache. If either one is missing for
-    const auto LoadPrecompiledWorker =
-        [&](std::size_t begin, std::size_t end, const std::vector<ShaderDiskCacheRaw>& raw_cache,
-            const ShaderDecompiledMap& decompiled_map, const ShaderDumpsMap& dump_map) {
-            for (std::size_t i = begin; i < end; ++i) {
-                if (stop_loading || compilation_failed) {
-                    return;
-                }
-                const auto& raw{raw_cache[i]};
-                const u64 unique_identifier{raw.GetUniqueIdentifier()};
-
-                const u64 calculated_hash =
-                    GetUniqueIdentifier(raw.GetRawShaderConfig(), raw.GetProgramCode());
-                if (unique_identifier != calculated_hash) {
-                    LOG_ERROR(Render_OpenGL,
-                              "Invalid hash in entry={:016x} (obtained hash={:016x}) - removing "
-                              "shader cache",
-                              raw.GetUniqueIdentifier(), calculated_hash);
-                    disk_cache.InvalidateAll();
-                    return;
-                }
-
-                const auto dump{dump_map.find(unique_identifier)};
-                const auto decomp{decompiled_map.find(unique_identifier)};
-
-                OGLProgram shader;
-
-                if (dump != dump_map.end() && decomp != decompiled_map.end()) {
-                    // Only load the vertex shader if its sanitize_mul setting matches
-                    if (raw.GetProgramType() == ProgramType::VS &&
-                        decomp->second.sanitize_mul != VideoCore::g_hw_shader_accurate_mul) {
-                        continue;
-                    }
-
-                    // If the shader is dumped, attempt to load it
-                    shader = GeneratePrecompiledProgram(dump->second, supported_formats, impl->separable);
-                    if (shader.handle == 0) {
-                        // If any shader failed, stop trying to compile, delete the cache, and start
-                        // loading from raws
-                        compilation_failed = true;
-                        return;
-                    }
-                    // we have both the binary shader and the decompiled, so inject it into the
-                    // cache
-                    if (raw.GetProgramType() == ProgramType::VS) {
-                        auto [conf, setup] = BuildVSConfigFromRaw(raw);
-                        std::scoped_lock lock(mutex);
-                        impl->programmable_vertex_shaders.Inject(conf, decomp->second.result.code,
-                                                                 std::move(shader));
-                    } else if (raw.GetProgramType() == ProgramType::FS) {
-                        PicaFSConfig conf = PicaFSConfig::BuildFromRegs(raw.GetRawShaderConfig());
-                        std::scoped_lock lock(mutex);
-                        impl->fragment_shaders.Inject(conf, std::move(shader));
-                    } else {
-                        // Unsupported shader type got stored somehow so nuke the cache
-
-                        LOG_CRITICAL(Frontend, "failed to load raw ProgramType {}",
-                                     raw.GetProgramType());
-                        compilation_failed = true;
-                        return;
-                    }
-                } else {
-                    // Since precompiled didn't have the dump, we'll load them in the next phase
-                    std::scoped_lock lock(mutex);
-                    load_raws_index.push_back(i);
-                }
-                if (callback) {
-                    callback(VideoCore::LoadCallbackStage::Decompile, i, raw_cache.size());
-                }
+    const auto LoadPrecompiledWorker = [&](std::size_t begin, std::size_t end,
+                                           const std::vector<ShaderDiskCacheRaw>& raw_cache,
+                                           const ShaderDecompiledMap& decompiled_map,
+                                           const ShaderDumpsMap& dump_map) {
+        for (std::size_t i = begin; i < end; ++i) {
+            if (stop_loading || compilation_failed) {
+                return;
             }
-        };
+            const auto& raw{raw_cache[i]};
+            const u64 unique_identifier{raw.GetUniqueIdentifier()};
 
-    const auto LoadPrecompiledProgram =
-            [&](const ShaderDecompiledMap& decompiled_map, const ShaderDumpsMap& dump_map) {
-            std::size_t i{0};
-            for (const auto &dump : dump_map) {
-                if (stop_loading) {
-                    break;
-                }
-                const u64 unique_identifier{dump.first};
-                const auto decomp{decompiled_map.find(unique_identifier)};
+            const u64 calculated_hash =
+                GetUniqueIdentifier(raw.GetRawShaderConfig(), raw.GetProgramCode());
+            if (unique_identifier != calculated_hash) {
+                LOG_ERROR(Render_OpenGL,
+                          "Invalid hash in entry={:016x} (obtained hash={:016x}) - removing "
+                          "shader cache",
+                          raw.GetUniqueIdentifier(), calculated_hash);
+                disk_cache.InvalidateAll();
+                return;
+            }
 
-                // Only load the program if its sanitize_mul setting matches
-                if (decomp->second.sanitize_mul != VideoCore::g_hw_shader_accurate_mul) {
+            const auto dump{dump_map.find(unique_identifier)};
+            const auto decomp{decompiled_map.find(unique_identifier)};
+
+            OGLProgram shader;
+
+            if (dump != dump_map.end() && decomp != decompiled_map.end()) {
+                // Only load the vertex shader if its sanitize_mul setting matches
+                if (raw.GetProgramType() == ProgramType::VS &&
+                    decomp->second.sanitize_mul != VideoCore::g_hw_shader_accurate_mul) {
                     continue;
                 }
 
-                // If the shader program is dumped, attempt to load it
-                OGLProgram shader =
-                        GeneratePrecompiledProgram(dump.second, supported_formats, impl->separable);
-                if (shader.handle != 0) {
-                    impl->disk_program_cache.insert({unique_identifier, std::move(shader)});
-                } else {
-                    LOG_ERROR(Frontend, "Failed to link Precompiled program!");
+                // If the shader is dumped, attempt to load it
+                shader =
+                    GeneratePrecompiledProgram(dump->second, supported_formats, impl->separable);
+                if (shader.handle == 0) {
+                    // If any shader failed, stop trying to compile, delete the cache, and start
+                    // loading from raws
                     compilation_failed = true;
-                    break;
+                    return;
                 }
-                if (callback) {
-                    callback(VideoCore::LoadCallbackStage::Decompile, ++i, dump_map.size());
+                // we have both the binary shader and the decompiled, so inject it into the
+                // cache
+                if (raw.GetProgramType() == ProgramType::VS) {
+                    auto [conf, setup] = BuildVSConfigFromRaw(raw);
+                    std::scoped_lock lock(mutex);
+                    impl->programmable_vertex_shaders.Inject(conf, decomp->second.result.code,
+                                                             std::move(shader));
+                } else if (raw.GetProgramType() == ProgramType::FS) {
+                    PicaFSConfig conf = PicaFSConfig::BuildFromRegs(raw.GetRawShaderConfig());
+                    std::scoped_lock lock(mutex);
+                    impl->fragment_shaders.Inject(conf, std::move(shader));
+                } else {
+                    // Unsupported shader type got stored somehow so nuke the cache
+
+                    LOG_CRITICAL(Frontend, "failed to load raw ProgramType {}",
+                                 raw.GetProgramType());
+                    compilation_failed = true;
+                    return;
                 }
+            } else {
+                // Since precompiled didn't have the dump, we'll load them in the next phase
+                std::scoped_lock lock(mutex);
+                load_raws_index.push_back(i);
             }
+            if (callback) {
+                callback(VideoCore::LoadCallbackStage::Decompile, i, raw_cache.size());
+            }
+        }
+    };
+
+    const auto LoadPrecompiledProgram = [&](const ShaderDecompiledMap& decompiled_map,
+                                            const ShaderDumpsMap& dump_map) {
+        std::size_t i{0};
+        for (const auto& dump : dump_map) {
+            if (stop_loading) {
+                break;
+            }
+            const u64 unique_identifier{dump.first};
+            const auto decomp{decompiled_map.find(unique_identifier)};
+
+            // Only load the program if its sanitize_mul setting matches
+            if (decomp->second.sanitize_mul != VideoCore::g_hw_shader_accurate_mul) {
+                continue;
+            }
+
+            // If the shader program is dumped, attempt to load it
+            OGLProgram shader =
+                GeneratePrecompiledProgram(dump.second, supported_formats, impl->separable);
+            if (shader.handle != 0) {
+                impl->disk_program_cache.insert({unique_identifier, std::move(shader)});
+            } else {
+                LOG_ERROR(Frontend, "Failed to link Precompiled program!");
+                compilation_failed = true;
+                break;
+            }
+            if (callback) {
+                callback(VideoCore::LoadCallbackStage::Decompile, ++i, dump_map.size());
+            }
+        }
     };
 
     if (impl->separable) {
@@ -633,7 +639,8 @@ void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
     compilation_failed = false;
 
     std::size_t built_shaders = 0; // It doesn't have be atomic since it's used behind a mutex
-    const auto LoadTransferable = [&](Frontend::GraphicsContext* context, std::size_t begin, std::size_t end) {
+    const auto LoadTransferable = [&](Frontend::GraphicsContext* context, std::size_t begin,
+                                      std::size_t end) {
         Frontend::ScopeAcquireContext scope(*context);
         for (std::size_t i = begin; i < end; ++i) {
             if (stop_loading || compilation_failed) {
@@ -655,7 +662,7 @@ void ShaderProgramManager::LoadDiskCache(const std::atomic_bool& stop_loading,
                 handle = stage.GetHandle();
                 sanitize_mul = conf.state.sanitize_mul;
                 std::scoped_lock lock(mutex);
-                impl->programmable_vertex_shaders.Inject(conf, result->code,std::move(stage));
+                impl->programmable_vertex_shaders.Inject(conf, result->code, std::move(stage));
             } else if (raw.GetProgramType() == ProgramType::FS) {
                 PicaFSConfig conf = PicaFSConfig::BuildFromRegs(raw.GetRawShaderConfig());
                 result = GenerateFragmentShader(conf, impl->separable);

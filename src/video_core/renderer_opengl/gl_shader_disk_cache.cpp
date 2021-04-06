@@ -106,8 +106,8 @@ ShaderDiskCache::ShaderDiskCache(bool separable) : separable{separable} {}
 
 std::optional<std::vector<ShaderDiskCacheRaw>> ShaderDiskCache::LoadTransferable() {
     const bool has_title_id = GetProgramID() != 0;
-    if (!Settings::values.use_hw_shader ||
-        !Settings::values.use_disk_shader_cache || !has_title_id) {
+    if (!Settings::values.use_hw_shader || !Settings::values.use_disk_shader_cache ||
+        !has_title_id) {
         return std::nullopt;
     }
     tried_to_load = true;
@@ -200,7 +200,8 @@ ShaderDiskCache::LoadPrecompiledFile(FileUtil::IOFile& file, bool compressed) {
     std::vector<u8> precompiled_file(file.GetSize());
     file.ReadBytes(precompiled_file.data(), precompiled_file.size());
     if (compressed) {
-        const std::vector<u8> decompressed = Common::Compression::DecompressDataZSTD(precompiled_file);
+        const std::vector<u8> decompressed =
+            Common::Compression::DecompressDataZSTD(precompiled_file);
         SaveArrayToPrecompiled(decompressed.data(), decompressed.size());
     } else {
         SaveArrayToPrecompiled(precompiled_file.data(), precompiled_file.size());
@@ -299,14 +300,13 @@ std::optional<ShaderDiskCacheDecompiled> ShaderDiskCache::LoadDecompiledEntry() 
 }
 
 void ShaderDiskCache::SaveDecompiledToFile(FileUtil::IOFile& file, u64 unique_identifier,
-                                            const ShaderDecompiler::ProgramResult& result,
-                                            bool sanitize_mul) {
+                                           const ShaderDecompiler::ProgramResult& result,
+                                           bool sanitize_mul) {
     if (!IsUsable())
         return;
 
     if (file.WriteObject(static_cast<u32>(PrecompiledEntryKind::Decompiled)) != 1 ||
-        file.WriteObject(unique_identifier) != 1 ||
-        file.WriteObject(sanitize_mul) != 1 ||
+        file.WriteObject(unique_identifier) != 1 || file.WriteObject(sanitize_mul) != 1 ||
         file.WriteObject(static_cast<u32>(result.code.size())) != 1 ||
         file.WriteArray(result.code.data(), result.code.size()) != result.code.size()) {
         LOG_ERROR(Render_OpenGL, "Failed to save decompiled cache entry - removing");
@@ -431,7 +431,7 @@ void ShaderDiskCache::SaveDumpToFile(u64 unique_identifier, GLuint program, bool
     if (file.WriteObject(static_cast<u32>(PrecompiledEntryKind::Dump)) != 1 ||
         file.WriteObject(unique_identifier) != 1 ||
         file.WriteObject(static_cast<u32>(binary_format)) != 1 ||
-        file.WriteObject(static_cast<u32>(binary_length)) != 1||
+        file.WriteObject(static_cast<u32>(binary_length)) != 1 ||
         file.WriteArray(binary.data(), binary.size()) != binary.size()) {
         LOG_ERROR(Render_OpenGL, "Failed to save binary program file in shader={:016x} - removing",
                   unique_identifier);
