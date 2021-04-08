@@ -115,6 +115,7 @@ public class DiskShaderCacheProgress {
     public static void loadProgress(LoadCallbackStage stage, int progress, int max) {
         final EmulationActivity emulationActivity = NativeLibrary.sEmulationActivity.get();
         if (emulationActivity == null) {
+            Log.error("[DiskShaderCacheProgress] EmulationActivity not present");
             return;
         }
 
