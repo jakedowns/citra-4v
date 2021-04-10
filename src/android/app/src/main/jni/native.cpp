@@ -120,14 +120,23 @@ static bool HandleCoreError(Core::System::ResultStatus result, const std::string
 }
 
 static jobject ToJavaLoadCallbackStage(VideoCore::LoadCallbackStage stage) {
-    static const std::map<VideoCore::LoadCallbackStage, const char*> LoadCallbackStageMap{
-        {VideoCore::LoadCallbackStage::Prepare, "Prepare"},
-        {VideoCore::LoadCallbackStage::Decompile, "Decompile"},
-        {VideoCore::LoadCallbackStage::Build, "Build"},
-        {VideoCore::LoadCallbackStage::Complete, "Complete"},
-    };
-
-    const auto name = LoadCallbackStageMap.at(stage);
+    const char* name;
+    switch (stage) {
+    case VideoCore::LoadCallbackStage::Prepare:
+        name = "Prepare";
+        break;
+    case VideoCore::LoadCallbackStage::Decompile:
+        name = "Decompile";
+        break;
+    case VideoCore::LoadCallbackStage::Build:
+        name = "Build";
+        break;
+    case VideoCore::LoadCallbackStage::Complete:
+        name = "Complete";
+        break;
+    default:
+        UNREACHABLE();
+    }
 
     JNIEnv* env = IDCache::GetEnvForThread();
 
