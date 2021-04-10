@@ -140,7 +140,7 @@ static jobject ToJavaLoadCallbackStage(VideoCore::LoadCallbackStage stage) {
 
     JNIEnv* env = IDCache::GetEnvForThread();
 
-    const jclass load_callback_stage_class = IDCache::GetDiskCacheLoadCallbackStageClass();
+    jclass load_callback_stage_class = IDCache::GetDiskCacheLoadCallbackStageClass();
     return env->GetStaticObjectField(
         load_callback_stage_class,
         env->GetStaticFieldID(
