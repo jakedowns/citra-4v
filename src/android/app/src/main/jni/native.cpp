@@ -228,8 +228,9 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
 
     LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Prepare, 0, 0);
 
-    std::unique_ptr<Frontend::GraphicsContext> cpu_context{window->CreateSharedContext()};
+    std::unique_ptr<Frontend::GraphicsContext> cpu_context;
     if (Settings::values.use_asynchronous_gpu_emulation) {
+        cpu_context = window->CreateSharedContext();
         cpu_context->MakeCurrent();
     }
 
@@ -237,6 +238,7 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
 
     if (Settings::values.use_asynchronous_gpu_emulation) {
         cpu_context->DoneCurrent();
+        cpu_context.reset();
     }
 
     LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Complete, 0, 0);
