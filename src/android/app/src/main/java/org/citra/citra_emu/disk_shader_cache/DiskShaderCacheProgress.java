@@ -39,9 +39,6 @@ public class DiskShaderCacheProgress {
     private static ProgressDialogFragment fragment;
 
     public static class ProgressDialogFragment extends DialogFragment {
-
-        private final Handler updateHandler = new Handler();
-
         ProgressBar progressBar;
         TextView progressText;
         AlertDialog dialog;
@@ -92,7 +89,7 @@ public class DiskShaderCacheProgress {
         }
 
         private void onUpdateProgress(String msg, int progress, int max) {
-            updateHandler.post(()->{
+            Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
                 progressBar.setProgress(progress);
                 progressBar.setMax(max);
                 progressText.setText(String.format("%d/%d", progress, max));
