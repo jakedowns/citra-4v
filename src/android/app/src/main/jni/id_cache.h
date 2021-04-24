@@ -14,6 +14,8 @@ JNIEnv* GetEnvForThread();
 jclass GetNativeLibraryClass();
 jclass GetCoreErrorClass();
 jclass GetSavestateInfoClass();
+jclass GetDiskCacheProgressClass();
+jclass GetDiskCacheLoadCallbackStageClass();
 jmethodID GetOnCoreError();
 jmethodID GetDisplayAlertMsg();
 jmethodID GetDisplayAlertPrompt();
@@ -23,6 +25,7 @@ jmethodID GetLandscapeScreenLayout();
 jmethodID GetExitEmulationActivity();
 jmethodID GetRequestCameraPermission();
 jmethodID GetRequestMicPermission();
+jmethodID GetDiskCacheLoadProgress();
 
 } // namespace IDCache
 

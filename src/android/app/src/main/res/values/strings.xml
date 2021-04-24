@@ -100,6 +100,9 @@
     <string name="cardboard_x_shift_description">Specifies the percentage of empty space to shift the screens horizontally. Positive values move the two eyes closer to the middle, while negative values move them away.</string>
     <string name="cardboard_y_shift">Vertical shift</string>
     <string name="cardboard_y_shift_description">Specifies the percentage of empty space to shift the screens vertically. Positive values move the two eyes towards the bottom, while negative values move them towards the top.</string>
+    <string name="use_shader_jit">Use shader JIT</string>
+    <string name="use_disk_shader_cache">Use disk shader cache</string>
+    <string name="use_disk_shader_cache_description">Reduce stuttering by storing and loading generated shaders to disk. It cannot be used without Enabling Hardware Shader.</string>
 
     <!-- Premium strings -->
     <string name="premium_text">Premium</string>
@@ -119,6 +122,7 @@
     <string name="ini_saved">Saved settings</string>
     <string name="gameid_saved">Saved settings for %1$s</string>
     <string name="error_saving">Error saving %1$s.ini: %2$s</string>
+    <string name="loading">Loading...</string>
 
     <!-- Game Grid Screen-->
     <string name="grid_menu_core_settings">Settings</string>
@@ -215,4 +219,8 @@
     <string name="save_load_error">Save/Load Error</string>
     <string name="fatal_error">Fatal Error</string>
     <string name="fatal_error_message">A fatal error occurred. Check the log for details.\nContinuing emulation may result in crashes and bugs.</string>
+
+    <!-- Disk shader cache -->
+    <string name="preparing_shaders">Preparing shaders</string>
+    <string name="building_shaders">Building shaders</string>
 </resources>

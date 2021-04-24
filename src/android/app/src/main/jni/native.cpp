@@ -47,7 +47,7 @@ ANativeWindow* s_surf;
 
 std::unique_ptr<EmuWindow_Android> window;
 
-std::atomic<bool> is_running{false};
+std::atomic<bool> stop_run{true};
 std::atomic<bool> pause_emulation{false};
 
 std::mutex paused_mutex;
@@ -119,6 +119,42 @@ static bool HandleCoreError(Core::System::ResultStatus result, const std::string
                                         env->NewStringUTF(details.c_str())) != JNI_FALSE;
 }
 
+static jobject ToJavaLoadCallbackStage(VideoCore::LoadCallbackStage stage) {
+    const char* name;
+    switch (stage) {
+    case VideoCore::LoadCallbackStage::Prepare:
+        name = "Prepare";
+        break;
+    case VideoCore::LoadCallbackStage::Decompile:
+        name = "Decompile";
+        break;
+    case VideoCore::LoadCallbackStage::Build:
+        name = "Build";
+        break;
+    case VideoCore::LoadCallbackStage::Complete:
+        name = "Complete";
+        break;
+    default:
+        UNREACHABLE();
+    }
+
+    JNIEnv* env = IDCache::GetEnvForThread();
+
+    jclass load_callback_stage_class = IDCache::GetDiskCacheLoadCallbackStageClass();
+    return env->GetStaticObjectField(
+        load_callback_stage_class,
+        env->GetStaticFieldID(
+            load_callback_stage_class, name,
+            "Lorg/citra/citra_emu/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage;"));
+}
+
+static void LoadDiskCacheProgress(VideoCore::LoadCallbackStage stage, int progress, int max) {
+    JNIEnv* env = IDCache::GetEnvForThread();
+    env->CallStaticVoidMethod(IDCache::GetDiskCacheProgressClass(),
+                              IDCache::GetDiskCacheLoadProgress(), ToJavaLoadCallbackStage(stage),
+                              (jint)progress, (jint)max);
+}
+
 static Camera::NDK::Factory* g_ndk_factory{};
 
 static void TryShutdown() {
@@ -187,8 +223,25 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
     auto& telemetry_session = Core::System::GetInstance().TelemetrySession();
     telemetry_session.AddField(Telemetry::FieldType::App, "Frontend", "SDL");
 
-    is_running = true;
+    stop_run = false;
     pause_emulation = false;
+
+    LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Prepare, 0, 0);
+
+    std::unique_ptr<Frontend::GraphicsContext> cpu_context;
+    if (Settings::values.use_asynchronous_gpu_emulation) {
+        cpu_context = window->CreateSharedContext();
+        cpu_context->MakeCurrent();
+    }
+
+    system.Renderer().Rasterizer()->LoadDiskResources(stop_run, &LoadDiskCacheProgress);
+
+    if (Settings::values.use_asynchronous_gpu_emulation) {
+        cpu_context->DoneCurrent();
+        cpu_context.reset();
+    }
+
+    LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Complete, 0, 0);
 
     SCOPE_EXIT({ TryShutdown(); });
 
@@ -208,7 +261,7 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
     system.CoreTiming().ScheduleEvent(audio_stretching_ticks, audio_stretching_event);
 
     // Start running emulation
-    while (is_running) {
+    while (!stop_run) {
         if (!pause_emulation) {
             const auto result = system.RunLoop();
             if (result == Core::System::ResultStatus::Success) {
@@ -231,7 +284,7 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
             Settings::values.volume = 0;
 
             std::unique_lock<std::mutex> pause_lock(paused_mutex);
-            running_cv.wait(pause_lock, [] { return !pause_emulation || !is_running; });
+            running_cv.wait(pause_lock, [] { return !pause_emulation || stop_run; });
             window->PollEvents();
         }
     }
@@ -263,7 +316,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_SurfaceDestroyed(JNIEnv* env,
 }
 
 void Java_org_citra_citra_1emu_NativeLibrary_DoFrame(JNIEnv* env, [[maybe_unused]] jclass clazz) {
-    if (!is_running || pause_emulation) {
+    if (stop_run || pause_emulation) {
         return;
     }
     window->TryPresenting();
@@ -349,7 +402,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_PauseEmulation(JNIEnv* env,
 
 void Java_org_citra_citra_1emu_NativeLibrary_StopEmulation(JNIEnv* env,
                                                            [[maybe_unused]] jclass clazz) {
-    is_running = false;
+    stop_run = true;
     pause_emulation = false;
     window->StopPresenting();
     running_cv.notify_all();
@@ -357,7 +410,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_StopEmulation(JNIEnv* env,
 
 jboolean Java_org_citra_citra_1emu_NativeLibrary_IsRunning(JNIEnv* env,
                                                            [[maybe_unused]] jclass clazz) {
-    return static_cast<jboolean>(is_running);
+    return static_cast<jboolean>(!stop_run);
 }
 
 jboolean Java_org_citra_citra_1emu_NativeLibrary_onGamePadEvent(JNIEnv* env,
@@ -577,8 +630,8 @@ void Java_org_citra_citra_1emu_NativeLibrary_Run__Ljava_lang_String_2(JNIEnv* en
                                                                       jstring j_path) {
     const std::string path = GetJString(env, j_path);
 
-    if (is_running) {
-        is_running = false;
+    if (!stop_run) {
+        stop_run = true;
         running_cv.notify_all();
     }
 

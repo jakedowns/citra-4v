@@ -43,6 +43,7 @@ public final class SettingsFile {
     public static final String KEY_HW_SHADER = "use_hw_shader";
     public static final String KEY_SHADERS_ACCURATE_MUL = "shaders_accurate_mul";
     public static final String KEY_USE_SHADER_JIT = "use_shader_jit";
+    public static final String KEY_USE_DISK_SHADER_CACHE = "use_disk_shader_cache";
     public static final String KEY_USE_VSYNC = "use_vsync_new";
     public static final String KEY_RESOLUTION_FACTOR = "resolution_factor";
     public static final String KEY_FRAME_LIMIT_ENABLED = "use_frame_limit";
