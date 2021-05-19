@@ -313,9 +313,6 @@ public final class SettingsFragmentPresenter {
         Setting buttonR = controlsSection.getSetting(SettingsFile.KEY_BUTTON_R);
         Setting buttonZL = controlsSection.getSetting(SettingsFile.KEY_BUTTON_ZL);
         Setting buttonZR = controlsSection.getSetting(SettingsFile.KEY_BUTTON_ZR);
-        Setting hapticFeedbackValue = controlsSection.getSetting(SettingsFile.KEY_HAPTIC_FEEDBACK_ENABLED);
-
-        sl.add(new CheckBoxSetting(SettingsFile.KEY_HAPTIC_FEEDBACK_ENABLED, Settings.SECTION_RENDERER, R.string.haptic_feedback, 0, true, hapticFeedbackValue));
 
         sl.add(new HeaderSetting(null, null, R.string.generic_buttons, 0));
         sl.add(new InputBindingSetting(SettingsFile.KEY_BUTTON_A, Settings.SECTION_CONTROLS, R.string.button_a, buttonA));

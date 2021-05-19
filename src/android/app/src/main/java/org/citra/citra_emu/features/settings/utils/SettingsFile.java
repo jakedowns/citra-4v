@@ -58,7 +58,6 @@ public final class SettingsFile {
     public static final String KEY_FILTER_MODE = "filter_mode";
     public static final String KEY_TEXTURE_FILTER_NAME = "texture_filter_name";
     public static final String KEY_USE_ASYNCHRONOUS_GPU_EMULATION = "use_asynchronous_gpu_emulation";
-    public static final String KEY_HAPTIC_FEEDBACK_ENABLED = "haptic_feedback_enabled";
 
     public static final String KEY_LAYOUT_OPTION = "layout_option";
     public static final String KEY_SWAP_SCREEN = "swap_screen";

@@ -16,10 +16,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.preference.PreferenceManager;<<<<<<<HEAD=======
+import android.preference.PreferenceManager;
 import android.os.Build;
 import android.os.Vibrator;
-import android.os.VibrationEffect;>>>>>>>origin/master
+import android.os.VibrationEffect;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -515,7 +515,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                 }
             }
 
-            if (shouldVibrate) {
+            if (shouldVibrate && EmulationMenuSettings.getHapticFeedback()) {
                 VibrationEffect effect = null;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                     effect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
