@@ -10,6 +10,7 @@
     <string name="app_notification_running">Citra is running</string>
 
     <!-- Input related strings -->
+    <string name="haptic_feedback">Haptic feedback</string>
     <string name="controller_circlepad">Circle Pad</string>
     <string name="controller_c">C-Stick</string>
     <string name="controller_triggers">Triggers</string>
