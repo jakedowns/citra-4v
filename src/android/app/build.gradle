@@ -121,7 +121,7 @@ dependencies {
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
 
-    implementation 'com.android.billingclient:billing:2.2.0'
+    implementation 'com.android.billingclient:billing:2.0.3'
 }
 
 def getVersion() {
