@@ -28,8 +28,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * Contains static methods for interacting with .ini files in which settings are
- * stored.
+ * Contains static methods for interacting with .ini files in which settings are stored.
  */
 public final class SettingsFile {
     public static final String FILE_NAME_CONFIG = "config";
@@ -123,22 +122,21 @@ public final class SettingsFile {
     private static BiMap<String, String> sectionsMap = new BiMap<>();
 
     static {
-        // TODO: Add members to sectionsMap when game-specific settings are added
+        //TODO: Add members to sectionsMap when game-specific settings are added
     }
 
     private SettingsFile() {
     }
 
     /**
-     * Reads a given .ini file from disk and returns it as a HashMap of Settings,
-     * themselves effectively a HashMap of key/value settings. If unsuccessful,
-     * outputs an error telling why it failed.
+     * Reads a given .ini file from disk and returns it as a HashMap of Settings, themselves
+     * effectively a HashMap of key/value settings. If unsuccessful, outputs an error telling why it
+     * failed.
      *
      * @param ini          The ini file to load the settings from
      * @param isCustomGame
      * @param view         The current view.
-     * @return An Observable that emits a HashMap of the file's contents, then
-     *         completes.
+     * @return An Observable that emits a HashMap of the file's contents, then completes.
      */
     static HashMap<String, SettingSection> readFile(final File ini, boolean isCustomGame, SettingsActivityView view) {
         HashMap<String, SettingSection> sections = new Settings.SettingsSectionMap();
@@ -149,7 +147,7 @@ public final class SettingsFile {
             reader = new BufferedReader(new FileReader(ini));
 
             SettingSection current = null;
-            for (String line; (line = reader.readLine()) != null;) {
+            for (String line; (line = reader.readLine()) != null; ) {
                 if (line.startsWith("[") && line.endsWith("]")) {
                     current = sectionFromLine(line, isCustomGame);
                     sections.put(current.getName(), current);
@@ -186,28 +184,26 @@ public final class SettingsFile {
     }
 
     /**
-     * Reads a given .ini file from disk and returns it as a HashMap of
-     * SettingSections, themselves effectively a HashMap of key/value settings. If
-     * unsuccessful, outputs an error telling why it failed.
+     * Reads a given .ini file from disk and returns it as a HashMap of SettingSections, themselves effectively
+     * a HashMap of key/value settings. If unsuccessful, outputs an error telling why it
+     * failed.
      *
      * @param gameId the id of the game to load it's settings.
      * @param view   The current view.
      */
-    public static HashMap<String, SettingSection> readCustomGameSettings(final String gameId,
-            SettingsActivityView view) {
+    public static HashMap<String, SettingSection> readCustomGameSettings(final String gameId, SettingsActivityView view) {
         return readFile(getCustomGameSettingsFile(gameId), true, view);
     }
 
     /**
-     * Saves a Settings HashMap to a given .ini file on disk. If unsuccessful,
-     * outputs an error telling why it failed.
+     * Saves a Settings HashMap to a given .ini file on disk. If unsuccessful, outputs an error
+     * telling why it failed.
      *
      * @param fileName The target filename without a path or extension.
      * @param sections The HashMap containing the Settings we want to serialize.
      * @param view     The current view.
      */
-    public static void saveFile(final String fileName, TreeMap<String, SettingSection> sections,
-            SettingsActivityView view) {
+    public static void saveFile(final String fileName, TreeMap<String, SettingSection> sections, SettingsActivityView view) {
         File ini = getSettingsFile(fileName);
 
         try {
@@ -221,8 +217,7 @@ public final class SettingsFile {
             writer.store();
         } catch (IOException e) {
             Log.error("[SettingsFile] File not found: " + fileName + ".ini: " + e.getMessage());
-            view.showToastMessage(
-                    CitraApplication.getAppContext().getString(R.string.error_saving, fileName, e.getMessage()), false);
+            view.showToastMessage(CitraApplication.getAppContext().getString(R.string.error_saving, fileName, e.getMessage()), false);
         }
     }
 
@@ -237,11 +232,11 @@ public final class SettingsFile {
 
             for (String settingKey : sortedKeySet) {
                 Setting setting = settings.get(settingKey);
-                NativeLibrary.SetUserSetting(gameId, mapSectionNameFromIni(section.getName()), setting.getKey(),
-                        setting.getValueAsString());
+                NativeLibrary.SetUserSetting(gameId, mapSectionNameFromIni(section.getName()), setting.getKey(), setting.getValueAsString());
             }
         }
     }
+
 
     private static String mapSectionNameFromIni(String generalSectionName) {
         if (sectionsMap.getForward(generalSectionName) != null) {
@@ -265,7 +260,8 @@ public final class SettingsFile {
     }
 
     private static File getCustomGameSettingsFile(String gameId) {
-        return new File(DirectoryInitialization.getUserDirectory() + "/GameSettings/" + gameId + ".ini");
+        return new File(
+                    DirectoryInitialization.getUserDirectory() + "/GameSettings/" + gameId + ".ini");
     }
 
     private static SettingSection sectionFromLine(String line, boolean isCustomGame) {
@@ -277,8 +273,8 @@ public final class SettingsFile {
     }
 
     /**
-     * For a line of text, determines what type of data is being represented, and
-     * returns a Setting object containing this data.
+     * For a line of text, determines what type of data is being represented, and returns
+     * a Setting object containing this data.
      *
      * @param current The section currently being parsed by the consuming method.
      * @param line    The line of text being parsed.
