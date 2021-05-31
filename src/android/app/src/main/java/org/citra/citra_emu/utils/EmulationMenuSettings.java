@@ -77,7 +77,7 @@ public class EmulationMenuSettings {
     }
 
     public static boolean getHapticFeedback() {
-        return mPreferences.getBoolean("EmulationMenuSettings_HapticFeedback", true);
+        return mPreferences.getBoolean("EmulationMenuSettings_HapticFeedback", false);
     }
 
     public static void setHapticFeedback(boolean value) {
