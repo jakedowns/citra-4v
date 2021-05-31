@@ -113,7 +113,6 @@ public final class EmulationActivity extends AppCompatActivity {
                 EmulationActivity.MENU_ACTION_DPAD_SLIDE_ENABLE);
         buttonsActionsMap.append(R.id.menu_emulation_haptic_feedback,
                 EmulationActivity.MENU_ACTION_HAPTIC_FEEDBACK);
-
     }
 
     private View mDecorView;
