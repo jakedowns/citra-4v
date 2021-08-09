@@ -75,14 +75,4 @@ public class EmulationMenuSettings {
         editor.putBoolean("EmulationMenuSettings_ShowOverlay", value);
         editor.apply();
     }
-
-    public static boolean getHapticFeedback() {
-        return mPreferences.getBoolean("EmulationMenuSettings_HapticFeedback", false);
-    }
-
-    public static void setHapticFeedback(boolean value) {
-        final SharedPreferences.Editor editor = mPreferences.edit();
-        editor.putBoolean("EmulationMenuSettings_HapticFeedback", value);
-        editor.apply();
-    }
 }

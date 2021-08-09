@@ -16,10 +16,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.preference.PreferenceManager;
-import android.os.Build;
-import android.os.Vibrator;
 import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -344,8 +343,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        boolean shouldVibrate = false;
-
         if (isInEditMode()) {
             return onTouchWhileEditing(event);
         }
@@ -387,7 +384,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                     // If a pointer enters the bounds of a button, press that button.
                     if (button.getBounds().contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex))) {
                         button.setPressedState(true);
-                        shouldVibrate = true;
                         button.setTrackId(event.getPointerId(pointerIndex));
                         NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
                                 ButtonState.PRESSED);
@@ -507,23 +503,18 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                             } else {
                                 dpad.setState(InputOverlayDrawableDpad.STATE_DEFAULT);
                             }
-
-                            shouldVibrate = shouldVibrate || (dpad.getState() != last_state
-                                    && dpad.getState() != InputOverlayDrawableDpad.STATE_DEFAULT);
                         }
                     }
                 }
             }
 
-            if (shouldVibrate && EmulationMenuSettings.getHapticFeedback()) {
-                VibrationEffect effect = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                    effect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
-                    ((Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(effect);
-                } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    ((Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE))
-                            .vibrate(VibrationEffect.EFFECT_CLICK);
-                }
+            // Not all devices that support VibrationEffect (API>=26) allow Amplitude Control
+            if (mPreferences.getInt("hapticFeedbackLevel", 0) >= 1 &&
+                    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                Vibrator vibratorManager = (Vibrator)
+                        getContext().getSystemService(Context.VIBRATOR_SERVICE);
+                vibratorManager.vibrate(VibrationEffect.createOneShot(80,
+                        mPreferences.getInt("hapticFeedbackLevel", 1)));
             }
         }
 
