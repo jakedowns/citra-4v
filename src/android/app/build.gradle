@@ -9,6 +9,12 @@ def autoVersion = (int) (((new Date().getTime() / 1000) - 1451606400) / 10)
 def buildType
 def abiFilter = "arm64-v8a" //, "x86"
 
+repositories {
+    maven {
+        url 'https://leiainc.jfrog.io/leiainc/gradle-release'
+    }
+}
+
 android {
     compileSdkVersion 29
 
@@ -101,6 +107,15 @@ android {
             }
         }
     }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['./../distribution/leia_sdk/lib']
+        }
+    }
+    packagingOptions {
+        pickFirst "**/lib/**"
+    }
 }
 
 dependencies {
@@ -122,6 +137,8 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
 
     implementation 'com.android.billingclient:billing:2.0.3'
+
+    implementation 'com.leia:leiasdk:4.5.3'
 }
 
 def getVersion() {

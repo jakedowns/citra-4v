@@ -46,7 +46,8 @@ enum class StereoRenderOption {
     Anaglyph,
     Interlaced,
     ReverseInterlaced,
-    CardboardVR
+    CardboardVR,
+    LitByLeia,
 };
 
 enum class GpuTimingMode {

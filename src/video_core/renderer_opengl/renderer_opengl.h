@@ -6,6 +6,10 @@
 
 #include <array>
 #include <glad/glad.h>
+#ifdef ANDROID
+#include <EGL/egl.h>
+#include <GLES/gl.h>
+#endif
 #include "common/common_types.h"
 #include "common/math_util.h"
 #include "core/hw/gpu.h"
@@ -56,6 +60,42 @@ struct PresentationTexture {
     u32 height = 0;
     OGLTexture texture;
 };
+
+// struct for Leia Shader Parameters
+struct SHADER_PARAMS {
+    GLuint program_;
+    GLuint light0_;
+    GLuint material_diffuse_;
+    GLuint material_ambient_;
+    GLuint material_specular_;
+
+    GLuint matrix_projection_;
+    GLuint matrix_view_;
+};
+
+static const int RT_COUNT = 4;
+struct LeiaInfo {
+    GLuint fullscreen_fbo;
+    GLuint fullscreen_texture;
+    GLuint fbos[RT_COUNT];
+    GLuint render_textures[RT_COUNT];
+    GLuint depth_textures[RT_COUNT];
+
+    GLuint fbo_dof[RT_COUNT];
+    GLuint texture_dof[RT_COUNT];
+
+    int screen_width_pixels_;
+    int screen_height_pixels_;
+    int view_width_pixels_;
+    int view_height_pixels_;
+
+    SHADER_PARAMS dof_shader;
+    SHADER_PARAMS view_interlacing_shader;
+    SHADER_PARAMS view_sharpening_shader;
+    SHADER_PARAMS texture_shader;
+};
+
+
 
 class RendererOpenGL : public VideoCore::RendererBase {
 public:
@@ -134,6 +174,8 @@ private:
     GLuint attrib_tex_coord;
 
     FrameDumperOpenGL frame_dumper;
+
+    LeiaInfo leia_info;
 };
 
 } // namespace OpenGL

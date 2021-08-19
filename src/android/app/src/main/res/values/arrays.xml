@@ -161,6 +161,7 @@
         <item>Interlaced</item>
         <item>Reverse Interlaced</item>
         <item>Cardboard VR</item>
+        <item>LitByLeia</item>
     </string-array>
 
     <integer-array name="render3dValues">

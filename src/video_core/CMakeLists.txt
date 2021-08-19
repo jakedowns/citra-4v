@@ -154,3 +154,12 @@ target_link_libraries(video_core PRIVATE glad nihstro-headers Boost::serializati
 if (ARCHITECTURE_x86_64)
     target_link_libraries(video_core PUBLIC xbyak)
 endif()
+
+if(ANDROID)
+    add_library(lib_leia_sdk STATIC IMPORTED)
+    set_target_properties(lib_leia_sdk PROPERTIES IMPORTED_LOCATION
+            ${PROJECT_SOURCE_DIR}/externals/leia_sdk/lib/arm64-v8a/libleiasdk.so)
+    target_include_directories(video_core PRIVATE
+            ${PROJECT_SOURCE_DIR}/externals/leia_sdk/include)
+    target_link_libraries(video_core PRIVATE EGL GLESv3 lib_leia_sdk)
+endif()

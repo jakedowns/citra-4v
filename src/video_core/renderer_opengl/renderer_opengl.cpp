@@ -11,6 +11,10 @@
 #include <memory>
 #include <mutex>
 #include <glad/glad.h>
+#ifdef ANDROID
+#include <EGL/egl.h>
+#include <GLES/gl.h>
+#endif
 #include <queue>
 #include "common/assert.h"
 #include "common/bit_field.h"
@@ -35,6 +39,18 @@
 #include "video_core/renderer_opengl/renderer_opengl.h"
 #include "video_core/video_core.h"
 
+#ifdef ANDROID
+#include "LeiaCameraViews.h"
+#include "LeiaNativeSDK.h"
+#include "LeiaJNIDisplayParameters.h"
+#endif
+
+//-------------------------------------------------------------------------
+// Preprocessor
+//-------------------------------------------------------------------------
+#define HELPER_CLASS_NAME \
+  "com/sample/helper/NDKHelper"  // Class name of helper function
+
 namespace OpenGL {
 
 // If the size of this is too small, it ends up creating a soft cap on FPS as the renderer will have
@@ -42,6 +58,15 @@ namespace OpenGL {
 // number but 9 swap textures at 60FPS presentation allows for 800% speed so thats probably fine
 #ifdef ANDROID
 constexpr std::size_t SWAP_CHAIN_SIZE = 6;
+// TODO ifdef ENABLE_LEIA
+const unsigned int CAMERAS_HIGH = 1;
+const unsigned int CAMERAS_WIDE = 2; // 4
+LeiaCameraView cameras[CAMERAS_HIGH][CAMERAS_WIDE];
+LeiaCameraData data;
+GLint leia_vbo;
+// todo: maybe these should be dynamic?
+const float CAM_NEAR = 5.0f;
+const float CAM_FAR = 10000.0f;
 #else
 constexpr std::size_t SWAP_CHAIN_SIZE = 9;
 #endif
@@ -561,7 +586,7 @@ void RendererOpenGL::LoadFBToScreenInfo(const GPU::Regs::FramebufferConfig& fram
     ASSERT(pixel_stride * bpp == framebuffer.stride);
 
     // Ensure no bad interactions with GL_UNPACK_ALIGNMENT, which by default
-    // only allows rows to have a memory alignement of 4.
+    // only allows rows to have a memory alignment of 4.
     ASSERT(pixel_stride % 4 == 0);
 
     if (!Rasterizer()->AccelerateDisplay(framebuffer, framebuffer_addr,
@@ -705,7 +730,7 @@ void RendererOpenGL::ReloadShader() {
             shader_data += fragment_shader_interlaced;
         } else {
             std::string shader_text =
-                OpenGL::GetPostProcessingShaderCode(true, Settings::values.pp_shader_name);
+                    OpenGL::GetPostProcessingShaderCode(true, Settings::values.pp_shader_name);
             if (shader_text.empty()) {
                 // Should probably provide some information that the shader couldn't load
                 shader_data += fragment_shader_interlaced;
@@ -713,6 +738,17 @@ void RendererOpenGL::ReloadShader() {
                 shader_data += shader_text;
             }
         }
+    } else if (Settings::values.render_3d == Settings::StereoRenderOption::LitByLeia) {
+        unsigned int len = 0;
+        leia_info.dof_shader.program_ = leiaCreateProgram(leiaGetShader(LEIA_VERTEX_DOF, &len),
+                                                leiaGetShader(LEIA_FRAGMENT_DOF, &len));
+        leia_info.view_interlacing_shader.program_ = leiaCreateProgram(
+                leiaGetShader(LEIA_VERTEX_VIEW_INTERLACE, &len),
+                leiaGetShader(LEIA_FRAGMENT_VIEW_INTERLACE, &len));
+        leia_info.view_sharpening_shader.program_ = leiaCreateProgram(
+                leiaGetShader(LEIA_VERTEX_VIEW_SHARPENING, &len),
+                leiaGetShader(LEIA_FRAGMENT_VIEW_SHARPENING, &len));
+        leia_vbo = leiaBuildQuadVertexBuffer(leia_info.view_sharpening_shader.program_);
     } else {
         if (Settings::values.pp_shader_name == "none (builtin)") {
             shader_data += fragment_shader;
@@ -801,6 +837,35 @@ void RendererOpenGL::ConfigureFramebufferTexture(TextureInfo& texture,
 
     default:
         UNIMPLEMENTED();
+    }
+
+    if (Settings::values.render_3d == Settings::StereoRenderOption::LitByLeia){
+        // Init Projection matrices
+        int32_t viewport[4];
+        glGetIntegerv(GL_VIEWPORT, viewport);
+        leia_info.view_width_pixels_ = framebuffer.width / 2.0f; //640;//LeiaJNIDisplayParameters::mViewResolution[0];
+        leia_info.view_height_pixels_ = framebuffer.height / 2.0f; //360;//LeiaJNIDisplayParameters::mViewResolution[1];
+        leia_info.screen_width_pixels_ = framebuffer.width;//LeiaJNIDisplayParameters::mScreenResolution[0];
+        leia_info.screen_height_pixels_ = framebuffer.height;//LeiaJNIDisplayParameters::mScreenResolution[1];
+        float baseline_scaling = 1.0f;
+        float to_radians = 3.14159f / 180.0f;
+        float to_degrees = 180.0f / 3.14159f;
+        // We convert to radians, make sure the aspect ratio is applied so things look the same
+        // regardless of the orientation, then convert back to degrees
+        float vertical_fov_degrees = atanf(tanf((66.9f * to_radians) / 2.0f) *
+                                           (float) leia_info.view_height_pixels_ /
+                                           (float) fmax((float) leia_info.view_width_pixels_,
+                                                        (float) leia_info.view_height_pixels_)) *
+                                     to_degrees * 2.0f;
+        float convergence_distance = 200.0f;
+        leiaInitializeCameraData(&data, CAMERAS_WIDE, CAMERAS_HIGH,
+                                 8.0f,//LeiaJNIDisplayParameters::mSystemDisparity,
+                                 baseline_scaling, convergence_distance,
+                                 vertical_fov_degrees, CAM_NEAR, CAM_FAR,
+                                 leia_info.view_width_pixels_, leia_info.view_height_pixels_);
+        if (!leiaCalculateViews(&data, (LeiaCameraView *) cameras, CAMERAS_WIDE, CAMERAS_HIGH)) {
+            LOG_DEBUG(Render_OpenGL,"leiaCalculateViews did not work. The camera data is invalid.");
+        }
     }
 
     state.texture_units[0].texture_2d = texture.resource.handle;

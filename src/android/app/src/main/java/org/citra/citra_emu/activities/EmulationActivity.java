@@ -1,5 +1,6 @@
 package org.citra.citra_emu.activities;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.SparseIntArray;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -26,6 +28,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.FragmentActivity;
+
+import com.leia.android.lights.LeiaDisplayManager;
+import com.leia.android.lights.LeiaDisplayManager.BacklightMode;
+import com.leia.android.lights.LeiaSDK;
+import com.leia.android.lights.SimpleDisplayQuery;
+import com.leia.android.lights.BacklightModeListener;
+import static com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_2D;
+import static com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_3D;
 
 import org.citra.citra_emu.CitraApplication;
 import org.citra.citra_emu.NativeLibrary;
@@ -52,7 +62,8 @@ import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-public final class EmulationActivity extends AppCompatActivity {
+public final class EmulationActivity extends AppCompatActivity
+        implements BacklightModeListener {
     public static final String EXTRA_SELECTED_GAME = "SelectedGame";
     public static final String EXTRA_SELECTED_TITLE = "SelectedTitle";
     public static final int MENU_ACTION_EDIT_CONTROLS_PLACEMENT = 0;
@@ -121,6 +132,14 @@ public final class EmulationActivity extends AppCompatActivity {
     private String mSelectedTitle;
     private String mPath;
 
+    // LitByLeia
+    private BacklightMode mExpectedBacklightMode;;
+    private boolean mBacklightHasShutDown;
+    private boolean mIsDeviceCurrentlyInPortraitMode;
+    private LeiaDisplayManager mDisplayManager;
+    private EmulationActivity _activity;
+    private SimpleDisplayQuery mLeiaQuery;
+
     public static void launch(FragmentActivity activity, String path, String title) {
         Intent launcher = new Intent(activity, EmulationActivity.class);
 
@@ -142,6 +161,14 @@ public final class EmulationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // TODO if device is LitByLeia
+        mIsDeviceCurrentlyInPortraitMode = IsPortraitCurrentOrientation();
+        mLeiaQuery = new SimpleDisplayQuery(this);
+        mDisplayManager = LeiaSDK.getDisplayManager(this);
+        if (mDisplayManager != null) {
+            mDisplayManager.registerBacklightModeListener(this);
+        }
 
         if (savedInstanceState == null) {
             // Get params we were passed
@@ -194,6 +221,19 @@ public final class EmulationActivity extends AppCompatActivity {
         // Override Citra core INI with the one set by our in game menu
         NativeLibrary.SwapScreens(EmulationMenuSettings.getSwapScreens(),
                 getWindowManager().getDefaultDisplay().getRotation());
+    }
+
+    @TargetApi(19)
+    protected void onResume() {
+        super.onResume();
+        mIsDeviceCurrentlyInPortraitMode = IsPortraitCurrentOrientation();
+        Enable3D();
+    }
+
+    protected void onPause()
+    {
+        super.onPause();
+        Disable3D();
     }
 
     @Override
@@ -776,6 +816,58 @@ public final class EmulationActivity extends AppCompatActivity {
 
     public boolean isActivityRecreated() {
         return activityRecreated;
+    }
+
+    @Override
+    public void onBacklightModeChanged(BacklightMode backlightMode)
+    {
+        //Log.e("EmulationActivity", "onBacklightModeChanged: callback received");
+        // Do something to remember the backlight is no longer on
+        // Later, we have to let the native side know this occurred.
+        if (mExpectedBacklightMode == MODE_3D &&
+                mExpectedBacklightMode != backlightMode) {
+            //Log.e("EmulationActivity", "onBacklightModeChanged: mBacklightHasShutDown = true;");
+            mBacklightHasShutDown = true;
+        }
+    }
+
+    public void Enable3D() {
+        if (mDisplayManager != null) {
+            mDisplayManager.setBacklightMode(MODE_3D);
+        }
+    }
+
+    public void Disable3D() {
+        if (mDisplayManager != null) {
+            mDisplayManager.setBacklightMode(MODE_2D);
+        }
+    }
+
+    private void SetBacklightMode(BacklightMode mode) {
+        if (mDisplayManager != null) {
+            mDisplayManager.setBacklightMode(mode);
+        }
+    }
+
+    public int HasBacklightShutdown() {
+        //Log.e("EmulationActivity", "HasBacklightShutdown: mBacklightHasShutDown = " + mBacklightHasShutDown);
+        return mBacklightHasShutDown ? 1 : 0;
+    }
+
+    public boolean IsPortraitCurrentOrientation() {
+        boolean is_portrait_current_orientation;
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        if (height > width) {
+            is_portrait_current_orientation = true;
+        }
+        else {
+            is_portrait_current_orientation = false;
+        }
+        return is_portrait_current_orientation;
     }
 
     @Retention(SOURCE)
