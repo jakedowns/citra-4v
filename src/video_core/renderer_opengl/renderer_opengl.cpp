@@ -65,7 +65,8 @@ constexpr std::size_t SWAP_CHAIN_SIZE = 6;
 const unsigned int CAMERAS_HIGH = 1;
 const unsigned int CAMERAS_WIDE = 2; // 4
 LeiaCameraView cameras[CAMERAS_HIGH][CAMERAS_WIDE];
-
+int leia_alignment_offset;
+float leia_debug = 1.0f; // >0.0f = enabled
 // todo: maybe these should be dynamic?
 const float CAM_NEAR = 5.0f;
 const float CAM_FAR = 10000.0f;
@@ -342,6 +343,26 @@ void main() {
         color = texture(color_texture, frag_tex_coord);
     else
         color = texture(color_texture_r, frag_tex_coord);
+}
+)";
+
+//#version 300 es
+static const char fragment_shader_leia_interlaced[] = R"(
+uniform sampler2D color_texture;
+uniform sampler2D color_texture_r;
+uniform float alignment_offset;
+uniform float debug;
+in vec2 frag_tex_coord;
+
+out vec4 color;
+
+void main()
+{
+    float view_id = mod(floor(gl_FragCoord.x + alignment_offset), 4.0);
+    if (view_id < 0.5) { color = texture(color_texture, frag_tex_coord); }
+    else if (view_id < 1.5) { color = texture(color_texture, frag_tex_coord); }
+    else if (view_id < 2.5) { color = texture(color_texture_r, frag_tex_coord); }
+    else { color = texture(color_texture_r, frag_tex_coord); }
 }
 )";
 
@@ -714,6 +735,8 @@ void RendererOpenGL::ReloadSampler() {
 }
 
 void RendererOpenGL::ReloadShader() {
+    leia_alignment_offset = 0.0f; //LeiaJNIDisplayParameters::mAlignmentOffset; this isn't working
+
     // Link shaders and get variable locations
     std::string shader_data;
     if (GLES) {
@@ -721,7 +744,9 @@ void RendererOpenGL::ReloadShader() {
     }
     std::string msg = "Settings::values.render_3d: ";
     msg += std::to_string(static_cast<double>(Settings::values.render_3d));
-    LOG_DEBUG(Render_OpenGL,msg.c_str());
+    char * cstr = new char [msg.length()+1];
+    std::strcpy (cstr, msg.c_str());
+    LOG_DEBUG(Render_OpenGL,cstr);
     if (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph) {
         if (Settings::values.pp_shader_name == "dubois (builtin)") {
             shader_data += fragment_shader_anaglyph;
@@ -750,41 +775,12 @@ void RendererOpenGL::ReloadShader() {
             }
         }
     } else if (Settings::values.render_3d == Settings::StereoRenderOption::LitByLeia) {
-        unsigned int len = 0;
-//        float debug = 1.0f; // 0.0f = off; >0.0f = on
-
 //        if (Settings::values.pp_shader_name == "leia") {
 //            shader_data += fragment_shader;
 //        } else {
-            // TODO: clean up leia_info when StereoRenderOption changes
-
-            //leia_info.dof_shader.program_ = leiaCreateProgram(leiaGetShader(LEIA_VERTEX_DOF, &len),
-            //      leiaGetShader(LEIA_FRAGMENT_DOF, &len));
-//            leia_info.view_interlacing_shader.program_ = leiaCreateProgram(
-//                    leiaGetShader(LEIA_VERTEX_VIEW_INTERLACE, &len),
-//                    leiaGetShader(LEIA_FRAGMENT_VIEW_INTERLACE, &len));
-            //leia_info.view_sharpening_shader.program_ = leiaCreateProgram(
-            //        leiaGetShader(LEIA_VERTEX_VIEW_SHARPENING, &len),
-            //        leiaGetShader(LEIA_FRAGMENT_VIEW_SHARPENING, &len));
-//            leia_info.leia_vbo = leiaBuildQuadVertexBuffer(leia_info.view_sharpening_shader.program_);
-
-            std::string shader_text = leiaGetShader(LEIA_FRAGMENT_VIEW_INTERLACE, &len);
-//            std::string shader_text =
-//                OpenGL::GetPostProcessingShaderCode(true, Settings::values.pp_shader_name);
+            std::string shader_text = fragment_shader_leia_interlaced;
+            shader_data += shader_text;
             LOG_DEBUG(Render_OpenGL, "leia shader loaded!");
-
-            LOG_DEBUG(Render_OpenGL, "breakpoint!");
-
-
-//            if (shader_text.empty()) {
-//            }else{
-//                LOG_DEBUG(Render_OpenGL, "leia shader failed to load");
-//            }
-                // Should probably provide some information that the shader couldn't load
-                shader_data += fragment_shader;
-//            } else {
-//                shader_data += shader_text;
-//            }
 //        }
     } else {
         if (Settings::values.pp_shader_name == "none (builtin)") {
@@ -819,6 +815,16 @@ void RendererOpenGL::ReloadShader() {
             glUniform1i(uniform_reverse_interlaced, 1);
         else
             glUniform1i(uniform_reverse_interlaced, 0);
+    }
+    if (Settings::values.render_3d == Settings::StereoRenderOption::LitByLeia){
+        GLuint uniform_debug = glGetUniformLocation(shader.handle, "debug");
+        if(leia_debug > 0.0f){
+            glUniform1i(uniform_debug, 1);
+        }else{
+            glUniform1i(uniform_debug, 0);
+        }
+        GLfloat uniform_alignment_offset = glGetUniformLocation(shader.handle, "alignment_offset");
+        glUniform1f(uniform_alignment_offset, leia_alignment_offset);
     }
     uniform_i_resolution = glGetUniformLocation(shader.handle, "i_resolution");
     uniform_o_resolution = glGetUniformLocation(shader.handle, "o_resolution");
@@ -1108,12 +1114,10 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout, bool f
     }
 
     if(Settings::values.render_3d == Settings::StereoRenderOption::LitByLeia){
-        GLuint *views_as_texture_2d = new GLuint[2]{screen_infos[0].display_texture,
-                                                    screen_infos[1].display_texture};
-        float screen_width_pixels = top_screen.GetWidth(); //leia_info.screen_width_pixels_;
-        float screen_height_pixels = top_screen.GetHeight(); //leia_info.screen_height_pixels_;
-        int alignment_offset = 0; //LeiaJNIDisplayParameters::mAlignmentOffset;
-        float debug = 1.0f;
+//        GLuint *views_as_texture_2d = new GLuint[2]{screen_infos[0].display_texture,
+//                                                    screen_infos[1].display_texture};
+//        float screen_width_pixels = top_screen.GetWidth(); //leia_info.screen_width_pixels_;
+//        float screen_height_pixels = top_screen.GetHeight(); //leia_info.screen_height_pixels_;
 //        if (layout.top_screen_enabled) {
 //            if (layout.is_rotated) {
 //
@@ -1126,8 +1130,8 @@ void RendererOpenGL::DrawScreens(const Layout::FramebufferLayout& layout, bool f
 //                                 fbo_target,
 //                                 screen_width_pixels,
 //                                 screen_height_pixels,
-//                                 alignment_offset,
-//                                 debug);
+//                                 leia_alignment_offset,
+//                                 leia_debug);
     }
 
     glUniform1i(uniform_layer, 0);
