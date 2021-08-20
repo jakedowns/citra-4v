@@ -26,7 +26,7 @@ import org.citra.citra_emu.utils.PermissionsHandler;
 import org.citra.citra_emu.utils.PicassoUtils;
 import org.citra.citra_emu.utils.StartupHandler;
 import org.citra.citra_emu.utils.ThemeUtil;
-import org.citra.citra_emu.view_models.SettingsViewModel;
+import org.citra.citra_emu.features.settings.model.SettingsViewModel;
 
 import java.util.Arrays;
 import java.util.Collections;

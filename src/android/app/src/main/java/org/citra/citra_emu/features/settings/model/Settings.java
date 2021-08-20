@@ -77,16 +77,42 @@ public class Settings {
         }
     }
 
+    public void loadSettings(SettingsListener listener) {
+        sections = new Settings.SettingsSectionMap();
+        loadCitraSettings(listener);
+
+        if (!TextUtils.isEmpty(gameId)) {
+            loadCustomGameSettings(gameId, listener);
+        }
+    }
+
+    public void loadSettings(String gameId, SettingsActivityView view) {
+        this.gameId = gameId;
+        loadSettings(view);
+    }
+
     private void loadCitraSettings(SettingsActivityView view) {
         for (Map.Entry<String, List<String>> entry : configFileSectionsMap.entrySet()) {
             String fileName = entry.getKey();
-            sections.putAll(SettingsFile.readFile(fileName, view));
+            sections.putAll(SettingsFile.readFile(fileName, view.mSettingsListener));
+        }
+    }
+
+    private void loadCitraSettings(SettingsListener listener) {
+        for (Map.Entry<String, List<String>> entry : configFileSectionsMap.entrySet()) {
+            String fileName = entry.getKey();
+            sections.putAll(SettingsFile.readFile(fileName, listener));
         }
     }
 
     private void loadCustomGameSettings(String gameId, SettingsActivityView view) {
         // custom game settings
-        mergeSections(SettingsFile.readCustomGameSettings(gameId, view));
+        mergeSections(SettingsFile.readCustomGameSettings(gameId, view.mSettingsListener));
+    }
+
+    private void loadCustomGameSettings(String gameId, SettingsListener listener) {
+        // custom game settings
+        mergeSections(SettingsFile.readCustomGameSettings(gameId, listener));
     }
 
     private void mergeSections(HashMap<String, SettingSection> updatedSections) {
@@ -99,15 +125,6 @@ public class Settings {
                 sections.put(entry.getKey(), entry.getValue());
             }
         }
-    }
-
-    public void loadSettings(String gameId, SettingsActivityView view) {
-        this.gameId = gameId;
-        loadSettings(view);
-    }
-
-    public void loadSettings() {
-
     }
 
     public void saveSettings(SettingsActivityView view) {

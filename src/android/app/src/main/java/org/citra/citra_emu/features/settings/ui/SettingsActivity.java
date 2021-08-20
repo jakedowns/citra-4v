@@ -17,17 +17,23 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.citra.citra_emu.NativeLibrary;
 import org.citra.citra_emu.R;
+import org.citra.citra_emu.features.settings.model.SettingsListener;
+import org.citra.citra_emu.features.settings.model.SettingsListenerClass;
+import org.citra.citra_emu.ui.main.MainActivity;
 import org.citra.citra_emu.utils.DirectoryInitialization;
 import org.citra.citra_emu.utils.DirectoryStateReceiver;
 import org.citra.citra_emu.utils.EmulationMenuSettings;
 
-public final class SettingsActivity extends AppCompatActivity implements SettingsActivityView {
+public final class SettingsActivity extends AppCompatActivity implements SettingsActivityView,
+                                                                         SettingsListener {
     private static final String ARG_MENU_TAG = "menu_tag";
     private static final String ARG_GAME_ID = "game_id";
     private static final String FRAGMENT_TAG = "settings";
     private SettingsActivityPresenter mPresenter = new SettingsActivityPresenter(this);
 
     private ProgressDialog dialog;
+
+    public SettingsListener mSettingsListener;
 
     public static void launch(Context context, String menuTag, String gameId) {
         Intent settings = new Intent(context, SettingsActivity.class);
@@ -39,6 +45,9 @@ public final class SettingsActivity extends AppCompatActivity implements Setting
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mSettingsListener = new SettingsListenerClass(this);
+        MainActivity.getSettingsViewModel().registerListenerActivity(mSettingsListener);
 
         setContentView(R.layout.activity_settings);
 
@@ -191,6 +200,11 @@ public final class SettingsActivity extends AppCompatActivity implements Setting
         if (fragment != null) {
             fragment.onSettingsFileLoaded(settings);
         }
+    }
+
+    @Override
+    public void updatedSettingsAvailable(org.citra.citra_emu.features.settings.model.Settings settings){
+        // noop
     }
 
     @Override

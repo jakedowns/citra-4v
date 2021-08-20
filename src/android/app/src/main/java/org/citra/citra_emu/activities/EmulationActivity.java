@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.SparseIntArray;
-import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -44,7 +43,6 @@ import org.citra.citra_emu.R;
 import org.citra.citra_emu.features.settings.model.view.InputBindingSetting;
 import org.citra.citra_emu.features.settings.ui.SettingsActivityView;
 import org.citra.citra_emu.features.settings.ui.SettingsActivity;
-import org.citra.citra_emu.features.settings.ui.SettingsActivityPresenter;
 import org.citra.citra_emu.features.settings.utils.SettingsFile;
 import org.citra.citra_emu.features.settings.model.Settings;
 import org.citra.citra_emu.features.settings.model.Setting;
@@ -57,8 +55,8 @@ import org.citra.citra_emu.utils.EmulationMenuSettings;
 import org.citra.citra_emu.utils.FileBrowserHelper;
 import org.citra.citra_emu.utils.FileUtil;
 import org.citra.citra_emu.utils.ForegroundService;
-import org.citra.citra_emu.view_models.SettingsViewModel;
-import org.citra.citra_emu.view_models.SettingsListener;
+import org.citra.citra_emu.features.settings.model.SettingsViewModel;
+import org.citra.citra_emu.features.settings.model.SettingsListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -140,6 +138,7 @@ public final class EmulationActivity extends AppCompatActivity
     private String mSelectedTitle;
     private String mPath;
 
+    private SettingsViewModel mSettingsViewModel;
     // LitByLeia
     private boolean mRenderModeIsLeia3d = false;
     private boolean prev_desired_backlight_state = false;
@@ -171,7 +170,11 @@ public final class EmulationActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        MainActivity.getSettingsViewModel().registerListenerActivity(this);
+        // set up a connection to the settings view model
+        // see: updatedSettingsAvailable
+        mSettingsViewModel = MainActivity.getSettingsViewModel();
+        mSettingsViewModel.registerListenerActivity(this);
+        mSettingsViewModel.loadSettingsFile(this);
 
         // TODO if device is LitByLeia
         mIsDeviceCurrentlyInPortraitMode = IsPortraitCurrentOrientation();
@@ -884,14 +887,25 @@ public final class EmulationActivity extends AppCompatActivity
         return is_portrait_current_orientation;
     }
 
+    /**
+     * This method is called when settings are loaded from disk or saved to disk
+     * @param settings
+     */
     @Override
-    public void onSettingsSaved(Settings settings){
+    public void updatedSettingsAvailable(Settings settings){
         checkShouldToggle3D(prev_desired_backlight_state);
     }
 
+    @Override
+    public void onSettingsFileNotFound(){
+        // noop
+    }
+
     public void checkShouldToggle3D(Boolean desired_state){
-        // TODO
-        SettingsViewModel mSettingsViewModel = MainActivity.getSettingsViewModel();
+        if(mSettingsViewModel == null){
+            // settings not available yet...
+            return;
+        }
         Settings mSettings = mSettingsViewModel.getSettings();
         mRenderModeIsLeia3d = false;
         if(mSettings != null && !mSettings.isEmpty()){

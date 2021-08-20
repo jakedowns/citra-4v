@@ -10,6 +10,7 @@ import org.citra.citra_emu.features.settings.model.IntSetting;
 import org.citra.citra_emu.features.settings.model.Setting;
 import org.citra.citra_emu.features.settings.model.SettingSection;
 import org.citra.citra_emu.features.settings.model.Settings;
+import org.citra.citra_emu.features.settings.model.SettingsListener;
 import org.citra.citra_emu.features.settings.model.StringSetting;
 import org.citra.citra_emu.features.settings.ui.SettingsActivityView;
 import org.citra.citra_emu.utils.BiMap;
@@ -136,10 +137,10 @@ public final class SettingsFile {
      *
      * @param ini          The ini file to load the settings from
      * @param isCustomGame
-     * @param view         The current view.
+     * @param listener     A listening view, or activity that needs to know when settings load/fail-to-load/etc
      * @return An Observable that emits a HashMap of the file's contents, then completes.
      */
-    static HashMap<String, SettingSection> readFile(final File ini, boolean isCustomGame, SettingsActivityView view) {
+    static HashMap<String, SettingSection> readFile(final File ini, boolean isCustomGame, SettingsListener listener) {
         HashMap<String, SettingSection> sections = new Settings.SettingsSectionMap();
 
         BufferedReader reader = null;
@@ -161,12 +162,12 @@ public final class SettingsFile {
             }
         } catch (FileNotFoundException e) {
             Log.error("[SettingsFile] File not found: " + ini.getAbsolutePath() + e.getMessage());
-            if (view != null)
-                view.onSettingsFileNotFound();
+            if (listener != null)
+                listener.onSettingsFileNotFound();
         } catch (IOException e) {
             Log.error("[SettingsFile] Error reading from: " + ini.getAbsolutePath() + e.getMessage());
-            if (view != null)
-                view.onSettingsFileNotFound();
+            if (listener != null)
+                listener.onSettingsFileNotFound();
         } finally {
             if (reader != null) {
                 try {
@@ -180,8 +181,8 @@ public final class SettingsFile {
         return sections;
     }
 
-    public static HashMap<String, SettingSection> readFile(final String fileName, SettingsActivityView view) {
-        return readFile(getSettingsFile(fileName), false, view);
+    public static HashMap<String, SettingSection> readFile(final String fileName, SettingsListener listener){
+        return readFile(getSettingsFile(fileName), false, listener);
     }
 
     /**
@@ -190,10 +191,10 @@ public final class SettingsFile {
      * failed.
      *
      * @param gameId the id of the game to load it's settings.
-     * @param view   The current view.
+     * @param listener
      */
-    public static HashMap<String, SettingSection> readCustomGameSettings(final String gameId, SettingsActivityView view) {
-        return readFile(getCustomGameSettingsFile(gameId), true, view);
+    public static HashMap<String, SettingSection> readCustomGameSettings(final String gameId, SettingsListener listener) {
+        return readFile(getCustomGameSettingsFile(gameId), true, listener);
     }
 
     /**

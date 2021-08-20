@@ -3,12 +3,15 @@ package org.citra.citra_emu.features.settings.ui;
 import android.content.IntentFilter;
 
 import org.citra.citra_emu.features.settings.model.Settings;
+import org.citra.citra_emu.features.settings.model.SettingsListener;
 import org.citra.citra_emu.utils.DirectoryStateReceiver;
 
 /**
  * Abstraction for the Activity that manages SettingsFragments.
  */
 public interface SettingsActivityView {
+    public SettingsListener mSettingsListener = null;
+
     /**
      * Show a new SettingsFragment.
      *
@@ -41,6 +44,11 @@ public interface SettingsActivityView {
      * @param settings The (possibly null) result of the ini load operation.
      */
     void onSettingsFileLoaded(Settings settings);
+
+    /**
+     * Called when settings are loaded/saved
+     */
+    void updatedSettingsAvailable(Settings settings);
 
     /**
      * Called when an asynchronous load operation fails.
