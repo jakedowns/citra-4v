@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.SparseIntArray;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -41,8 +42,13 @@ import org.citra.citra_emu.CitraApplication;
 import org.citra.citra_emu.NativeLibrary;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.features.settings.model.view.InputBindingSetting;
+import org.citra.citra_emu.features.settings.ui.SettingsActivityView;
 import org.citra.citra_emu.features.settings.ui.SettingsActivity;
+import org.citra.citra_emu.features.settings.ui.SettingsActivityPresenter;
 import org.citra.citra_emu.features.settings.utils.SettingsFile;
+import org.citra.citra_emu.features.settings.model.Settings;
+import org.citra.citra_emu.features.settings.model.Setting;
+import org.citra.citra_emu.features.settings.model.SettingSection;
 import org.citra.citra_emu.camera.StillImageCameraHelper;
 import org.citra.citra_emu.fragments.EmulationFragment;
 import org.citra.citra_emu.ui.main.MainActivity;
@@ -51,6 +57,8 @@ import org.citra.citra_emu.utils.EmulationMenuSettings;
 import org.citra.citra_emu.utils.FileBrowserHelper;
 import org.citra.citra_emu.utils.FileUtil;
 import org.citra.citra_emu.utils.ForegroundService;
+import org.citra.citra_emu.view_models.SettingsViewModel;
+import org.citra.citra_emu.view_models.SettingsListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +71,7 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 public final class EmulationActivity extends AppCompatActivity
-        implements BacklightModeListener {
+        implements BacklightModeListener, SettingsListener {
     public static final String EXTRA_SELECTED_GAME = "SelectedGame";
     public static final String EXTRA_SELECTED_TITLE = "SelectedTitle";
     public static final int MENU_ACTION_EDIT_CONTROLS_PLACEMENT = 0;
@@ -133,7 +141,9 @@ public final class EmulationActivity extends AppCompatActivity
     private String mPath;
 
     // LitByLeia
-    private BacklightMode mExpectedBacklightMode;;
+    private boolean mRenderModeIsLeia3d = false;
+    private boolean prev_desired_backlight_state = false;
+    private BacklightMode mExpectedBacklightMode;
     private boolean mBacklightHasShutDown;
     private boolean mIsDeviceCurrentlyInPortraitMode;
     private LeiaDisplayManager mDisplayManager;
@@ -142,7 +152,6 @@ public final class EmulationActivity extends AppCompatActivity
 
     public static void launch(FragmentActivity activity, String path, String title) {
         Intent launcher = new Intent(activity, EmulationActivity.class);
-
         launcher.putExtra(EXTRA_SELECTED_GAME, path);
         launcher.putExtra(EXTRA_SELECTED_TITLE, title);
         activity.startActivity(launcher);
@@ -161,6 +170,8 @@ public final class EmulationActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        MainActivity.getSettingsViewModel().registerListenerActivity(this);
 
         // TODO if device is LitByLeia
         mIsDeviceCurrentlyInPortraitMode = IsPortraitCurrentOrientation();
@@ -227,17 +238,18 @@ public final class EmulationActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         mIsDeviceCurrentlyInPortraitMode = IsPortraitCurrentOrientation();
-        Enable3D();
+        checkShouldToggle3D(true);
     }
 
     protected void onPause()
     {
         super.onPause();
-        Disable3D();
+        checkShouldToggle3D(false);
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
+        checkShouldToggle3D(false);
         outState.putString(EXTRA_SELECTED_GAME, mPath);
         outState.putString(EXTRA_SELECTED_TITLE, mSelectedTitle);
         super.onSaveInstanceState(outState);
@@ -246,6 +258,8 @@ public final class EmulationActivity extends AppCompatActivity
     protected void restoreState(Bundle savedInstanceState) {
         mPath = savedInstanceState.getString(EXTRA_SELECTED_GAME);
         mSelectedTitle = savedInstanceState.getString(EXTRA_SELECTED_TITLE);
+
+        checkShouldToggle3D(true);
 
         // If an alert prompt was in progress when state was restored, retry displaying it
         NativeLibrary.retryDisplayAlertPrompt();
@@ -868,6 +882,45 @@ public final class EmulationActivity extends AppCompatActivity
             is_portrait_current_orientation = false;
         }
         return is_portrait_current_orientation;
+    }
+
+    @Override
+    public void onSettingsSaved(Settings settings){
+        checkShouldToggle3D(prev_desired_backlight_state);
+    }
+
+    public void checkShouldToggle3D(Boolean desired_state){
+        // TODO
+        SettingsViewModel mSettingsViewModel = MainActivity.getSettingsViewModel();
+        Settings mSettings = mSettingsViewModel.getSettings();
+        mRenderModeIsLeia3d = false;
+        if(mSettings != null && !mSettings.isEmpty()){
+            SettingSection rendererSection = mSettings.getSection(Settings.SECTION_RENDERER);
+            if(rendererSection != null){
+                Setting render3dMode = rendererSection.getSetting(SettingsFile.KEY_RENDER_3D);
+                if(render3dMode != null){
+                    //Log.d("EmulationActivity:render3dMode",render3dMode.getValueAsString());
+                    //Log.d("EmulationActivity:render3dMode eq?",Boolean.toString(Integer.parseInt(render3dMode.getValueAsString()) == Integer.parseInt("6")));
+                    if(render3dMode != null && Integer.parseInt(render3dMode.getValueAsString()) == Integer.parseInt("6")){
+                        mRenderModeIsLeia3d = true;
+                    }
+                }else{
+                    //Log.d("EmulationActivity","render3dMode not set");
+                }
+            }else{
+                //Log.d("EmulationActivity","rendererSection null");
+            }
+        }else{
+            //Log.d("EmulationActivity","settings not yet loaded");
+        }
+
+        if(desired_state && mRenderModeIsLeia3d){
+            Enable3D();
+        }else{
+            Disable3D();
+        }
+
+        prev_desired_backlight_state = desired_state;
     }
 
     @Retention(SOURCE)

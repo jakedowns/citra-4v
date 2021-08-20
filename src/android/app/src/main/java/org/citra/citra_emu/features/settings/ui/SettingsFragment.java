@@ -17,6 +17,8 @@ import org.citra.citra_emu.features.settings.model.Setting;
 import org.citra.citra_emu.features.settings.model.Settings;
 import org.citra.citra_emu.features.settings.model.view.SettingsItem;
 import org.citra.citra_emu.ui.DividerItemDecoration;
+import org.citra.citra_emu.ui.main.MainActivity;
+import org.citra.citra_emu.view_models.SettingsViewModel;
 
 import java.util.ArrayList;
 
@@ -94,12 +96,16 @@ public final class SettingsFragment extends Fragment implements SettingsFragment
 
     @Override
     public void onSettingsFileLoaded(Settings settings) {
+        SettingsViewModel svm = MainActivity.getSettingsViewModel();
+        svm.setSettings(settings);
         mPresenter.setSettings(settings);
     }
 
     @Override
     public void passSettingsToActivity(Settings settings) {
         if (mActivity != null) {
+            SettingsViewModel svm = MainActivity.getSettingsViewModel();
+            svm.setSettings(settings);
             mActivity.setSettings(settings);
         }
     }

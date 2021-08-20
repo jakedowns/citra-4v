@@ -156,10 +156,30 @@ if (ARCHITECTURE_x86_64)
 endif()
 
 if(ANDROID)
+    # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling#always-full-rpath
+    # use, i.e. don't skip the full RPATH for the build tree
+    set(CMAKE_SKIP_BUILD_RPATH FALSE)
+
+    # when building, don't use the install RPATH already
+    # (but later on when installing)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
+    # add the automatically determined parts of the RPATH
+    # which point to directories outside the build tree to the install RPATH
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+    # the RPATH to be used when installing, but only if it's not a system directory
+    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+    if("${isSystemDir}" STREQUAL "-1")
+        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    endif("${isSystemDir}" STREQUAL "-1")
+
     add_library(lib_leia_sdk STATIC IMPORTED)
     set_target_properties(lib_leia_sdk PROPERTIES IMPORTED_LOCATION
             ${PROJECT_SOURCE_DIR}/externals/leia_sdk/lib/arm64-v8a/libleiasdk.so)
     target_include_directories(video_core PRIVATE
             ${PROJECT_SOURCE_DIR}/externals/leia_sdk/include)
-    target_link_libraries(video_core PRIVATE EGL GLESv3 lib_leia_sdk)
+    target_link_libraries(video_core PRIVATE EGL GLESv2 lib_leia_sdk)
 endif()

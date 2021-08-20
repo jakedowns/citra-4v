@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import org.citra.citra_emu.NativeLibrary;
 import org.citra.citra_emu.features.settings.model.Settings;
 import org.citra.citra_emu.features.settings.utils.SettingsFile;
+import org.citra.citra_emu.ui.main.MainActivity;
 import org.citra.citra_emu.utils.DirectoryInitialization;
 import org.citra.citra_emu.utils.DirectoryInitialization.DirectoryInitializationState;
 import org.citra.citra_emu.utils.DirectoryStateReceiver;
@@ -107,10 +108,13 @@ public final class SettingsActivityPresenter {
             directoryStateReceiver = null;
         }
 
+        MainActivity.getSettingsViewModel().setSettings(mSettings);
+
         if (mSettings != null && finishing && mShouldSave) {
             Log.debug("[SettingsActivity] Settings activity stopping. Saving settings to INI...");
             mSettings.saveSettings(mView);
         }
+
 
         ThemeUtil.applyTheme();
 

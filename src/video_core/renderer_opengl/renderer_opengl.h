@@ -18,6 +18,12 @@
 #include "video_core/renderer_opengl/gl_resource_manager.h"
 #include "video_core/renderer_opengl/gl_state.h"
 
+#ifdef ANDROID
+#include "LeiaCameraViews.h"
+//#include "LeiaNativeSDK.h"
+//#include "LeiaJNIDisplayParameters.h"
+#endif
+
 namespace Layout {
 struct FramebufferLayout;
 }
@@ -61,6 +67,7 @@ struct PresentationTexture {
     OGLTexture texture;
 };
 
+#ifdef ANDROID
 // struct for Leia Shader Parameters
 struct SHADER_PARAMS {
     GLuint program_;
@@ -80,6 +87,8 @@ struct LeiaInfo {
     GLuint fbos[RT_COUNT];
     GLuint render_textures[RT_COUNT];
     GLuint depth_textures[RT_COUNT];
+    GLint leia_vbo;
+    LeiaCameraData leia_camera_data;
 
     GLuint fbo_dof[RT_COUNT];
     GLuint texture_dof[RT_COUNT];
@@ -94,7 +103,7 @@ struct LeiaInfo {
     SHADER_PARAMS view_sharpening_shader;
     SHADER_PARAMS texture_shader;
 };
-
+#endif
 
 
 class RendererOpenGL : public VideoCore::RendererBase {

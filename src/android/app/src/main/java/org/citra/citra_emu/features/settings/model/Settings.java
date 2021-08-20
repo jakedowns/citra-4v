@@ -106,6 +106,10 @@ public class Settings {
         loadSettings(view);
     }
 
+    public void loadSettings() {
+
+    }
+
     public void saveSettings(SettingsActivityView view) {
         if (TextUtils.isEmpty(gameId)) {
             view.showToastMessage(CitraApplication.getAppContext().getString(R.string.ini_saved), false);

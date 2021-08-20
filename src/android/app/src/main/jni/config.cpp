@@ -144,6 +144,8 @@ void Config::ReadValues() {
         default_shader = "dubois (builtin)";
     else if (Settings::values.render_3d == Settings::StereoRenderOption::Interlaced)
         default_shader = "horizontal (builtin)";
+    else if (Settings::values.render_3d == Settings::StereoRenderOption::LitByLeia)
+        default_shader = "leia";
     Settings::values.pp_shader_name =
         sdl2_config->GetString("Renderer", "pp_shader_name", default_shader);
     Settings::values.filter_mode = sdl2_config->GetBoolean("Renderer", "filter_mode", true);

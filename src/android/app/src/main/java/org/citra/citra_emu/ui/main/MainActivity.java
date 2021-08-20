@@ -26,6 +26,7 @@ import org.citra.citra_emu.utils.PermissionsHandler;
 import org.citra.citra_emu.utils.PicassoUtils;
 import org.citra.citra_emu.utils.StartupHandler;
 import org.citra.citra_emu.utils.ThemeUtil;
+import org.citra.citra_emu.view_models.SettingsViewModel;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,6 +46,9 @@ public final class MainActivity extends AppCompatActivity implements MainView {
     private static BillingManager mBillingManager;
 
     private static MenuItem mPremiumButton;
+
+    // Singleton to make settings easily readable from EmulationActivity
+    private static SettingsViewModel mSettingsViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +78,9 @@ public final class MainActivity extends AppCompatActivity implements MainView {
 
         // Setup billing manager, so we can globally query for Premium status
         mBillingManager = new BillingManager(this);
+
+        // Setup Settings Store, so we can check StereoRenderOption inside EmulationActivity without duplicating SettingView async file loader
+        mSettingsViewModel = new SettingsViewModel(this);
 
         // Dismiss previous notifications (should not happen unless a crash occurred)
         EmulationActivity.tryDismissRunningNotification(this);
@@ -265,5 +272,9 @@ public final class MainActivity extends AppCompatActivity implements MainView {
      */
     public static void invokePremiumBilling(Runnable callback) {
         mBillingManager.invokePremiumBilling(callback);
+    }
+
+    public static SettingsViewModel getSettingsViewModel(){
+        return mSettingsViewModel;
     }
 }
