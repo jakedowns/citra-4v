@@ -96,6 +96,7 @@ public final class EmulationActivity extends AppCompatActivity
     public static final int MENU_ACTION_TOGGLE_DEPTH_SLIDER = 18;
     public static final int MENU_ACTION_ADJUST_OPACITY = 19;
     public static final int MENU_ACTION_FACE_BUTTON_SLIDE_ENABLE = 20;
+    public static final int MENU_ACTION_VIBRATE_ON_RELEASE = 21;
 
     public static final int REQUEST_SELECT_AMIIBO = 2;
     private static final int EMULATION_RUNNING_NOTIFICATION = 0x1000;
@@ -158,6 +159,8 @@ public final class EmulationActivity extends AppCompatActivity
                 EmulationActivity.MENU_ACTION_DPAD_SLIDE_ENABLE);
         buttonsActionsMap.append(R.id.menu_emulation_haptic_feedback,
                 EmulationActivity.MENU_ACTION_HAPTIC_FEEDBACK);
+        buttonsActionsMap.append(R.id.menu_emulation_vibrate_on_release,
+                EmulationActivity.MENU_ACTION_VIBRATE_ON_RELEASE);
     }
 
     private View mDecorView;
@@ -582,6 +585,11 @@ public final class EmulationActivity extends AppCompatActivity
                 break;
             case MENU_ACTION_HAPTIC_FEEDBACK:
                 adjustHapticFeedback();
+                break;
+            case MENU_ACTION_VIBRATE_ON_RELEASE:
+                final boolean isVibrateOnReleaseEnabled = !EmulationMenuSettings.getVibrateOnReleaseEnable();
+                EmulationMenuSettings.setVibrateOnReleaseEnable(isVibrateOnReleaseEnabled);
+                item.setChecked(isVibrateOnReleaseEnabled);
                 break;
         }
 

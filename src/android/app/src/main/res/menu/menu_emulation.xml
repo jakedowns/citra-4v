@@ -35,6 +35,12 @@
                 android:id="@+id/menu_emulation_adjust_opacity"
                 android:title="@string/emulation_control_opacity" />
 
+            <item
+                android:id="@+id/menu_emulation_toggle_depth_slider"
+                app:showAsAction="never"
+                android:title="@string/emulation_toggle_depth_slider"
+                android:checkable="true" />
+
             <group android:checkableBehavior="all">
                 <item
                     android:id="@+id/menu_emulation_joystick_rel_center"
@@ -48,6 +54,11 @@
                     android:id="@+id/menu_emulation_face_button_slide_enable"
                     android:checkable="true"
                     android:title="@string/emulation_control_face_button_slide_enable" />
+
+                <item
+                    android:id="@+id/menu_emulation_vibrate_on_release"
+                    android:checkable="true"
+                    android:title="@string/emulation_control_vibrate_on_release" />
             </group>
 
             <item
@@ -115,12 +126,6 @@
         android:id="@+id/menu_emulation_show_overlay"
         app:showAsAction="never"
         android:title="@string/emulation_show_overlay"
-        android:checkable="true" />
-
-    <item
-        android:id="@+id/menu_emulation_toggle_depth_slider"
-        app:showAsAction="never"
-        android:title="@string/emulation_toggle_depth_slider"
         android:checkable="true" />
 
     <item

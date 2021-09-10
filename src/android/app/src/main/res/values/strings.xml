@@ -228,4 +228,5 @@
     <string name="preparing_shaders">Preparing shaders</string>
     <string name="building_shaders">Building shaders</string>
     <string name="emulation_control_opacity">Adjust Opacity</string>
+    <string name="emulation_control_vibrate_on_release">Vibrate on Release</string>
 </resources>

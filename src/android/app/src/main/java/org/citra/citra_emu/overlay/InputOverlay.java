@@ -676,7 +676,13 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                 newButtonsPressed++;
             }
         }
-        if(newButtonsPressed>0||numButtonsReleased>0){
+        if(
+            newButtonsPressed > 0
+            || (
+                EmulationMenuSettings.getVibrateOnReleaseEnable()
+                && numButtonsReleased > 0
+            )
+        ){
             // Not all devices that support VibrationEffect (API>=26) allow Amplitude Control
             // TODO: could expose vibration duration (ms) and amplitude as separate user preferences
             // Could also allow them (if they're crazy enough) to let it keep vibrating for the duration of the press?

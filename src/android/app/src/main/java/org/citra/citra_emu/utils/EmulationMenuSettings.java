@@ -79,9 +79,20 @@ public class EmulationMenuSettings {
     public static boolean getFaceButtonSlideEnable() {
         return mPreferences.getBoolean("EmulationMenuSettings_FaceButtonSlideEnable", true);
     }
+
     public static void setFaceButtonSlideEnable(boolean value) {
         final SharedPreferences.Editor editor = mPreferences.edit();
         editor.putBoolean("EmulationMenuSettings_FaceButtonSlideEnable", value);
         editor.apply();
+    }
+
+    public static void setVibrateOnReleaseEnable(boolean value) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putBoolean("EmulationMenuSettings_VibrateOnReleaseEnable", value);
+        editor.apply();
+    }
+
+    public static boolean getVibrateOnReleaseEnable() {
+        return mPreferences.getBoolean("EmulationMenuSettings_VibrateOnReleaseEnable", false);
     }
 }
