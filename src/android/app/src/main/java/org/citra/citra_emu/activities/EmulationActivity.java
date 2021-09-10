@@ -95,6 +95,7 @@ public final class EmulationActivity extends AppCompatActivity
     public static final int MENU_ACTION_HAPTIC_FEEDBACK = 17;
     public static final int MENU_ACTION_TOGGLE_DEPTH_SLIDER = 18;
     public static final int MENU_ACTION_ADJUST_OPACITY = 19;
+    public static final int MENU_ACTION_FACEBUTTON_SLIDE_ENABLE = 20;
 
     public static final int REQUEST_SELECT_AMIIBO = 2;
     private static final int EMULATION_RUNNING_NOTIFICATION = 0x1000;
@@ -555,6 +556,11 @@ public final class EmulationActivity extends AppCompatActivity
                 final boolean isDpadSlideEnabled = !EmulationMenuSettings.getDpadSlideEnable();
                 EmulationMenuSettings.setDpadSlideEnable(isDpadSlideEnabled);
                 item.setChecked(isDpadSlideEnabled);
+                break;
+            case MENU_ACTION_FACEBUTTON_SLIDE_ENABLE:
+                final boolean isFaceButtonSlideEnabled = !EmulationMenuSettings.getFaceButtonSlideEnable();
+                EmulationMenuSettings.setFaceButtonSlideEnable(isFaceButtonSlideEnabled);
+                item.setChecked(isFaceButtonSlideEnabled);
                 break;
             case MENU_ACTION_HAPTIC_FEEDBACK:
                 adjustHapticFeedback();

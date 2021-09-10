@@ -75,4 +75,13 @@ public class EmulationMenuSettings {
         editor.putBoolean("EmulationMenuSettings_ShowOverlay", value);
         editor.apply();
     }
+
+    public static boolean getFaceButtonSlideEnable() {
+        return mPreferences.getBoolean("EmulationMenuSettings_FaceButtonSlideEnable", true);
+    }
+    public static void setFaceButtonSlideEnable(boolean value) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putBoolean("EmulationMenuSettings_FaceButtonSlideEnable", value);
+        editor.apply();
+    }
 }
