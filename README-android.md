@@ -1,3 +1,17 @@
+# LitByLeia Fork of Citra for Android
+
+## Changelog
+
+- See [releases](https://github.com/jakedowns/citra-android/releases) page for .apk files
+
+### Beta 2021.09.09
+- added option to adjust overlay control opacity [Issue #245](https://github.com/citra-emu/citra-android/issues/245)
+- added option to enable & adjust haptic feedback for on screen controls (Thanks to [@VitorTrin](https://github.com/citra-emu/citra-android/pull/212) & [@JetPlaneJJ](https://github.com/citra-emu/citra-android/issues/226#issuecomment-895529118))
+- added option to enable sliding finger between face buttons [Issue #247](https://github.com/citra-emu/citra-android/issues/247), similar to how DPad behaves (Thanks to [@nathanlepori](https://github.com/citra-emu/citra-android/pull/72))
+
+### Beta 15.1
+- add support for Lit By Leia stereo displays
+
 # Android Performance Ideas
 
 ### Asynchronous Shader Compilation?
