@@ -538,6 +538,7 @@ jstring Java_org_citra_citra_1emu_NativeLibrary_GetUserSetting(JNIEnv* env,
     std::string_view key = env->GetStringUTFChars(j_key, 0);
 
     // TODO
+    LOG_DEBUG(Common,"native library get user setting not implemented");
 
     env->ReleaseStringUTFChars(j_game_id, game_id.data());
     env->ReleaseStringUTFChars(j_section, section.data());
@@ -556,6 +557,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_SetUserSetting(JNIEnv* env,
     std::string_view value = env->GetStringUTFChars(j_value, 0);
 
     // TODO
+    LOG_DEBUG(Common,"native library save user setting not implemented");
 
     env->ReleaseStringUTFChars(j_game_id, game_id.data());
     env->ReleaseStringUTFChars(j_section, section.data());

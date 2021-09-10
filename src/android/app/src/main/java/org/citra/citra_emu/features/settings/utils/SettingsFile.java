@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -207,6 +208,17 @@ public final class SettingsFile {
      */
     public static void saveFile(final String fileName, TreeMap<String, SettingSection> sections,
                                 SettingsActivityView view) {
+        try {
+           saveFileSilent(fileName, sections);
+        } catch (IOException e) {
+//            Log.error("[SettingsFile] File not found: " + fileName + ".ini: " + e.getMessage());
+            view.showToastMessage(CitraApplication.getAppContext().getString(R.string.error_saving
+                        , fileName, e.getMessage()), false);
+        }
+    }
+
+    public static void saveFileSilent(final String fileName,
+                                      TreeMap<String, SettingSection> sections) throws IOException {
         File ini = getSettingsFile(fileName);
 
         try {
@@ -220,7 +232,7 @@ public final class SettingsFile {
             writer.store();
         } catch (IOException e) {
             Log.error("[SettingsFile] File not found: " + fileName + ".ini: " + e.getMessage());
-            view.showToastMessage(CitraApplication.getAppContext().getString(R.string.error_saving, fileName, e.getMessage()), false);
+            throw e;
         }
     }
 

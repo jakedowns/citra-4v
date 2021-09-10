@@ -127,10 +127,8 @@ public class Settings {
         }
     }
 
-    public void saveSettings(SettingsActivityView view) {
+    public void saveSettingsSilent() {
         if (TextUtils.isEmpty(gameId)) {
-            view.showToastMessage(CitraApplication.getAppContext().getString(R.string.ini_saved), false);
-
             for (Map.Entry<String, List<String>> entry : configFileSectionsMap.entrySet()) {
                 String fileName = entry.getKey();
                 List<String> sectionNames = entry.getValue();
@@ -139,14 +137,26 @@ public class Settings {
                     iniSections.put(section, sections.get(section));
                 }
 
-                SettingsFile.saveFile(fileName, iniSections, view);
+                try {
+                    SettingsFile.saveFileSilent(fileName, iniSections);
+                }catch(Exception e){
+                    //
+                }
             }
+        } else {
+            SettingsFile.saveCustomGameSettings(gameId, sections);
+        }
+    }
+
+    public void saveSettings(SettingsActivityView view) {
+        saveSettingsSilent();
+        // Notify via toast
+        if (TextUtils.isEmpty(gameId)) {
+            view.showToastMessage(CitraApplication.getAppContext().getString(R.string.ini_saved)
+                    , false);
         } else {
             // custom game settings
             view.showToastMessage(CitraApplication.getAppContext().getString(R.string.gameid_saved, gameId), false);
-
-            SettingsFile.saveCustomGameSettings(gameId, sections);
         }
-
     }
 }

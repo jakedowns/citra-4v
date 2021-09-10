@@ -42,7 +42,7 @@
 #include "video_core/renderer_opengl/renderer_opengl.h"
 #include "video_core/video_core.h"
 
-#ifdef ANDROID
+#if defined(ANDROID) && !defined(ARCHITECTURE_x86_64)
 #include "LeiaCameraViews.h"
 #include "LeiaNativeSDK.h"
 #include "LeiaJNIDisplayParameters.h"
@@ -59,7 +59,7 @@ namespace OpenGL {
 // If the size of this is too small, it ends up creating a soft cap on FPS as the renderer will have
 // to wait on available presentation frames. There doesn't seem to be much of a downside to a larger
 // number but 9 swap textures at 60FPS presentation allows for 800% speed so thats probably fine
-#ifdef ANDROID
+#if defined(ANDROID) && !defined(ARCHITECTURE_x86_64)
 constexpr std::size_t SWAP_CHAIN_SIZE = 6;
 // TODO ifdef ENABLE_LEIA
 const unsigned int CAMERAS_HIGH = 1;
@@ -735,8 +735,9 @@ void RendererOpenGL::ReloadSampler() {
 }
 
 void RendererOpenGL::ReloadShader() {
+#if defined(ANDROID) && !defined(ARCHITECTURE_x86_64)
     leia_alignment_offset = 0.0f; //LeiaJNIDisplayParameters::mAlignmentOffset; this isn't working
-
+#endif
     // Link shaders and get variable locations
     std::string shader_data;
     if (GLES) {
@@ -816,6 +817,7 @@ void RendererOpenGL::ReloadShader() {
         else
             glUniform1i(uniform_reverse_interlaced, 0);
     }
+#if defined(ANDROID) && !defined(ARCHITECTURE_x86_64)
     if (Settings::values.render_3d == Settings::StereoRenderOption::LitByLeia){
         GLuint uniform_debug = glGetUniformLocation(shader.handle, "debug");
         if(leia_debug > 0.0f){
@@ -826,6 +828,7 @@ void RendererOpenGL::ReloadShader() {
         GLfloat uniform_alignment_offset = glGetUniformLocation(shader.handle, "alignment_offset");
         glUniform1f(uniform_alignment_offset, leia_alignment_offset);
     }
+#endif
     uniform_i_resolution = glGetUniformLocation(shader.handle, "i_resolution");
     uniform_o_resolution = glGetUniformLocation(shader.handle, "o_resolution");
     uniform_layer = glGetUniformLocation(shader.handle, "layer");
@@ -881,39 +884,6 @@ void RendererOpenGL::ConfigureFramebufferTexture(TextureInfo& texture,
 
     default:
         UNIMPLEMENTED();
-    }
-
-    if (Settings::values.render_3d == Settings::StereoRenderOption::LitByLeia){
-        // Init Projection matrices
-        int32_t viewport[4];
-        glGetIntegerv(GL_VIEWPORT, viewport);
-        leia_info.view_width_pixels_ = framebuffer.width / 2.0f; //640;//LeiaJNIDisplayParameters::mViewResolution[0];
-        leia_info.view_height_pixels_ = framebuffer.height / 2.0f; //360;//LeiaJNIDisplayParameters::mViewResolution[1];
-        leia_info.screen_width_pixels_ = framebuffer.width;//LeiaJNIDisplayParameters::mScreenResolution[0];
-        leia_info.screen_height_pixels_ = framebuffer.height;//LeiaJNIDisplayParameters::mScreenResolution[1];
-
-        // TODO: remove all this: note we're not using leia's camera system to calculate the views
-        // we're just rendering left and right eye using leia View Interlacing
-        // _maybe_ if we feel like getting super advanced, we can look at tweaking the camera system
-//        float baseline_scaling = 1.0f;
-//        float to_radians = 3.14159f / 180.0f;
-//        float to_degrees = 180.0f / 3.14159f;
-//        // We convert to radians, make sure the aspect ratio is applied so things look the same
-//        // regardless of the orientation, then convert back to degrees
-//        float vertical_fov_degrees = atanf(tanf((66.9f * to_radians) / 2.0f) *
-//                                           (float) leia_info.view_height_pixels_ /
-//                                           (float) fmax((float) leia_info.view_width_pixels_,
-//                                                        (float) leia_info.view_height_pixels_)) *
-//                                     to_degrees * 2.0f;
-//        float convergence_distance = 200.0f;
-//        leiaInitializeCameraData(&leia_info.leia_camera_data, CAMERAS_WIDE, CAMERAS_HIGH,
-//                                 8.0f,//LeiaJNIDisplayParameters::mSystemDisparity,
-//                                 baseline_scaling, convergence_distance,
-//                                 vertical_fov_degrees, CAM_NEAR, CAM_FAR,
-//                                 leia_info.view_width_pixels_, leia_info.view_height_pixels_);
-//        if (!leiaCalculateViews(&leia_info.leia_camera_data, (LeiaCameraView *) cameras, CAMERAS_WIDE, CAMERAS_HIGH)) {
-//            LOG_DEBUG(Render_OpenGL,"leiaCalculateViews did not work. The camera data is invalid.");
-//        }
     }
 
     state.texture_units[0].texture_2d = texture.resource.handle;

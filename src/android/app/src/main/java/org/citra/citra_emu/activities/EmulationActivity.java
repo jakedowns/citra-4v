@@ -2,11 +2,13 @@ package org.citra.citra_emu.activities;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.SparseIntArray;
@@ -21,6 +23,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -89,6 +92,7 @@ public final class EmulationActivity extends AppCompatActivity
     public static final int MENU_ACTION_REMOVE_AMIIBO = 14;
     public static final int MENU_ACTION_JOYSTICK_REL_CENTER = 15;
     public static final int MENU_ACTION_DPAD_SLIDE_ENABLE = 16;
+    public static final int MENU_ACTION_TOGGLE_DEPTH_SLIDER = 17;
 
     public static final int REQUEST_SELECT_AMIIBO = 2;
     private static final int EMULATION_RUNNING_NOTIFICATION = 0x1000;
@@ -115,6 +119,8 @@ public final class EmulationActivity extends AppCompatActivity
                 EmulationActivity.MENU_ACTION_SWAP_SCREENS);
         buttonsActionsMap
                 .append(R.id.menu_emulation_reset_overlay, EmulationActivity.MENU_ACTION_RESET_OVERLAY);
+        buttonsActionsMap.append(R.id.menu_emulation_toggle_depth_slider,
+                EmulationActivity.MENU_ACTION_TOGGLE_DEPTH_SLIDER);
         buttonsActionsMap
                 .append(R.id.menu_emulation_show_overlay, EmulationActivity.MENU_ACTION_SHOW_OVERLAY);
         buttonsActionsMap
@@ -146,8 +152,7 @@ public final class EmulationActivity extends AppCompatActivity
     private boolean mBacklightHasShutDown;
     private boolean mIsDeviceCurrentlyInPortraitMode;
     private LeiaDisplayManager mDisplayManager;
-    private EmulationActivity _activity;
-    private SimpleDisplayQuery mLeiaQuery;
+//    private SimpleDisplayQuery mLeiaQuery;
 
     public static void launch(FragmentActivity activity, String path, String title) {
         Intent launcher = new Intent(activity, EmulationActivity.class);
@@ -164,11 +169,15 @@ public final class EmulationActivity extends AppCompatActivity
     protected void onDestroy() {
         stopService(foregroundService);
         super.onDestroy();
+//        wakeLock.release();
+        getWindow().setSustainedPerformanceMode(false);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setSustainedPerformanceMode(true);
 
         // set up a connection to the settings view model
         // see: updatedSettingsAvailable
@@ -240,6 +249,8 @@ public final class EmulationActivity extends AppCompatActivity
     @TargetApi(19)
     protected void onResume() {
         super.onResume();
+
+        getWindow().setSustainedPerformanceMode(true);
         mIsDeviceCurrentlyInPortraitMode = IsPortraitCurrentOrientation();
         checkShouldToggle3D(true);
     }
@@ -247,6 +258,8 @@ public final class EmulationActivity extends AppCompatActivity
     protected void onPause()
     {
         super.onPause();
+
+        getWindow().setSustainedPerformanceMode(false);
         checkShouldToggle3D(false);
     }
 
@@ -439,6 +452,10 @@ public final class EmulationActivity extends AppCompatActivity
                 toggleControls();
                 break;
 
+            case MENU_ACTION_TOGGLE_DEPTH_SLIDER:
+                toggleDepthSlider();
+                break;
+
             // Adjust the scale of the overlay controls.
             case MENU_ACTION_ADJUST_SCALE:
                 adjustScale();
@@ -627,7 +644,7 @@ public final class EmulationActivity extends AppCompatActivity
 
     private void toggleControls() {
         final SharedPreferences.Editor editor = mPreferences.edit();
-        boolean[] enabledButtons = new boolean[14];
+        boolean[] enabledButtons = new boolean[15];
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.emulation_toggle_controls);
 
@@ -638,6 +655,7 @@ public final class EmulationActivity extends AppCompatActivity
                 case 6: // ZL
                 case 7: // ZR
                 case 12: // C-stick
+                case 13: // Depth Slider
                     defaultValue = false;
                     break;
             }
@@ -656,6 +674,14 @@ public final class EmulationActivity extends AppCompatActivity
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private void toggleDepthSlider() {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        final boolean isChecked = mPreferences.getBoolean("buttonToggle13", false);
+        editor.putBoolean("buttonToggle13", !isChecked);
+        editor.apply();
+        mEmulationFragment.refreshInputOverlay();
     }
 
     private void adjustScale() {
@@ -835,6 +861,7 @@ public final class EmulationActivity extends AppCompatActivity
         return activityRecreated;
     }
 
+    /** BacklightModeListener Interface requirement */
     @Override
     public void onBacklightModeChanged(BacklightMode backlightMode)
     {
@@ -901,36 +928,36 @@ public final class EmulationActivity extends AppCompatActivity
         // noop
     }
 
-    public void checkShouldToggle3D(Boolean desired_state){
-        if(mSettingsViewModel == null){
+    public void checkShouldToggle3D(Boolean desired_state) {
+        if (mSettingsViewModel == null) {
             // settings not available yet...
             return;
         }
         Settings mSettings = mSettingsViewModel.getSettings();
         mRenderModeIsLeia3d = false;
-        if(mSettings != null && !mSettings.isEmpty()){
+        if (mSettings != null && !mSettings.isEmpty()) {
             SettingSection rendererSection = mSettings.getSection(Settings.SECTION_RENDERER);
-            if(rendererSection != null){
+            if (rendererSection != null) {
                 Setting render3dMode = rendererSection.getSetting(SettingsFile.KEY_RENDER_3D);
-                if(render3dMode != null){
+                if (render3dMode != null) {
                     //Log.d("EmulationActivity:render3dMode",render3dMode.getValueAsString());
                     //Log.d("EmulationActivity:render3dMode eq?",Boolean.toString(Integer.parseInt(render3dMode.getValueAsString()) == Integer.parseInt("6")));
-                    if(render3dMode != null && Integer.parseInt(render3dMode.getValueAsString()) == Integer.parseInt("6")){
+                    if (render3dMode != null && Integer.parseInt(render3dMode.getValueAsString()) == Integer.parseInt("6")) {
                         mRenderModeIsLeia3d = true;
                     }
-                }else{
+                } else {
                     //Log.d("EmulationActivity","render3dMode not set");
                 }
-            }else{
+            } else {
                 //Log.d("EmulationActivity","rendererSection null");
             }
-        }else{
+        } else {
             //Log.d("EmulationActivity","settings not yet loaded");
         }
 
-        if(desired_state && mRenderModeIsLeia3d){
+        if (desired_state && mRenderModeIsLeia3d) {
             Enable3D();
-        }else{
+        } else {
             Disable3D();
         }
 
@@ -938,10 +965,10 @@ public final class EmulationActivity extends AppCompatActivity
     }
 
     @Retention(SOURCE)
-    @IntDef({MENU_ACTION_EDIT_CONTROLS_PLACEMENT, MENU_ACTION_TOGGLE_CONTROLS, MENU_ACTION_ADJUST_SCALE,
-            MENU_ACTION_EXIT, MENU_ACTION_SHOW_FPS, MENU_ACTION_SCREEN_LAYOUT_LANDSCAPE,
-            MENU_ACTION_SCREEN_LAYOUT_PORTRAIT, MENU_ACTION_SCREEN_LAYOUT_SINGLE, MENU_ACTION_SCREEN_LAYOUT_SIDEBYSIDE,
-            MENU_ACTION_SWAP_SCREENS, MENU_ACTION_RESET_OVERLAY, MENU_ACTION_SHOW_OVERLAY, MENU_ACTION_OPEN_SETTINGS})
+    @IntDef({MENU_ACTION_EDIT_CONTROLS_PLACEMENT, MENU_ACTION_TOGGLE_CONTROLS, MENU_ACTION_ADJUST_SCALE, MENU_ACTION_EXIT,
+            MENU_ACTION_SHOW_FPS, MENU_ACTION_SCREEN_LAYOUT_LANDSCAPE, MENU_ACTION_SCREEN_LAYOUT_PORTRAIT,
+            MENU_ACTION_SCREEN_LAYOUT_SINGLE, MENU_ACTION_SCREEN_LAYOUT_SIDEBYSIDE, MENU_ACTION_SWAP_SCREENS,
+            MENU_ACTION_RESET_OVERLAY, MENU_ACTION_SHOW_OVERLAY, MENU_ACTION_OPEN_SETTINGS, MENU_ACTION_TOGGLE_DEPTH_SLIDER})
     public @interface MenuAction {
     }
 }

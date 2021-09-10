@@ -155,7 +155,7 @@ if (ARCHITECTURE_x86_64)
     target_link_libraries(video_core PUBLIC xbyak)
 endif()
 
-if(ANDROID)
+if(ANDROID AND NOT ARCHITECTURE_x86_64)
     # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling#always-full-rpath
     # use, i.e. don't skip the full RPATH for the build tree
     set(CMAKE_SKIP_BUILD_RPATH FALSE)

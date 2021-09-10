@@ -43,10 +43,13 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
     private final Set<InputOverlayDrawableDpad> overlayDpads = new HashSet<>();
     private final Set<InputOverlayDrawableJoystick> overlayJoysticks = new HashSet<>();
 
+    private InputOverlayDrawableSlider overlaySlider;
+
     private boolean mIsInEditMode = false;
     private InputOverlayDrawableButton mButtonBeingConfigured;
     private InputOverlayDrawableDpad mDpadBeingConfigured;
     private InputOverlayDrawableJoystick mJoystickBeingConfigured;
+    private InputOverlayDrawableSlider mSliderBeingConfigured;
 
     private SharedPreferences mPreferences;
 
@@ -320,6 +323,57 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         return overlayDrawable;
     }
 
+    private static InputOverlayDrawableSlider initializeOverlaySlider(Context context,
+                                                                      int resOuter,
+                                                                      int defaultResInner,
+                                                                      int pressedResInner,
+                                                                      String orientation){
+        final Resources res = context.getResources();
+        final SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        // Decide scale based on user preference
+        float scale = 0.275f;
+        scale *= (sPrefs.getInt("controlScale", 50) + 50);
+        scale /= 100;
+
+        // Initialize the InputOverlayDrawableSlider.
+        final Bitmap bitmapOuter =
+                resizeBitmap(context, BitmapFactory.decodeResource(res, resOuter), scale);
+        final Bitmap bitmapInnerDefault =
+                resizeBitmap(context, BitmapFactory.decodeResource(res, defaultResInner), scale);
+        final Bitmap bitmapInnerPressed =
+                resizeBitmap(context, BitmapFactory.decodeResource(res, pressedResInner), scale);
+
+        // The X and Y coordinates of the InputOverlayDrawableButton on the InputOverlay.
+        // These were set in the input overlay configuration menu.
+        int drawableX = (int) sPrefs.getFloat("DepthSlider" + orientation + "-X", 0f);
+        int drawableY = (int) sPrefs.getFloat("DepthSlider" + orientation + "-Y", 0f);
+
+        float outerScale = 1.f;
+
+        // Now set the bounds for the InputOverlayDrawableJoystick.
+        // This will dictate where on the screen (and the what the size) the InputOverlayDrawableJoystick will be.
+        int outerWidth = bitmapOuter.getWidth();
+        int outerHeight = bitmapOuter.getHeight();
+        int innerWidth = bitmapInnerDefault.getWidth();
+        int innerHeight = bitmapInnerDefault.getHeight();
+
+        Rect outerRect = new Rect(drawableX, drawableY,
+                drawableX + (int) (outerWidth / outerScale),
+                drawableY + (int) (outerHeight / outerScale));
+        Rect innerRect = new Rect(0, 0, (int) (innerWidth / outerScale), (int) (innerHeight / outerScale));
+
+        // Send the drawableId to the joystick so it can be referenced when saving control position.
+        final InputOverlayDrawableSlider overlayDrawable
+                = new InputOverlayDrawableSlider(res, bitmapOuter,
+                bitmapInnerDefault, bitmapInnerPressed,
+                outerRect, innerRect, 14);
+
+        // Need to set the image's position
+        overlayDrawable.setPosition(drawableX, drawableY);
+
+        return overlayDrawable;
+    }
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
@@ -334,6 +388,10 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
 
         for (InputOverlayDrawableJoystick joystick : overlayJoysticks) {
             joystick.draw(canvas);
+        }
+
+        if(overlaySlider != null){
+            overlaySlider.draw(canvas);
         }
     }
 
@@ -513,6 +571,10 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                     .onGamePadMoveEvent(NativeLibrary.TouchScreenDevice, axisID, axises[0], axises[1]);
         }
 
+        if(overlaySlider != null){
+            overlaySlider.TrackEvent(event,v);
+        }
+
         invalidate();
 
         return true;
@@ -624,6 +686,33 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
             }
         }
 
+        // Moving Slider
+        switch(event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
+                if (mSliderBeingConfigured == null &&
+                        overlaySlider.getBounds().contains(fingerPositionX, fingerPositionY)) {
+                    mSliderBeingConfigured = overlaySlider;
+                    mSliderBeingConfigured.onConfigureTouch(event);
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (mSliderBeingConfigured != null) {
+                    mSliderBeingConfigured.onConfigureTouch(event);
+                    invalidate();
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+                if (mSliderBeingConfigured != null) {
+                    saveControlPosition(mSliderBeingConfigured.getId(),
+                            mSliderBeingConfigured.getBounds().left,
+                            mSliderBeingConfigured.getBounds().top, orientation);
+                    mSliderBeingConfigured = null;
+                }
+                break;
+        }
+
         return true;
     }
 
@@ -706,6 +795,10 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         if (mPreferences.getBoolean("buttonToggle12", false)) {
             overlayJoysticks.add(initializeOverlayJoystick(getContext(), R.drawable.stick_c_range,
                     R.drawable.stick_c, R.drawable.stick_c_pressed, ButtonType.STICK_C, orientation));
+        }
+        if (mPreferences.getBoolean("buttonToggle13", false)) {
+            overlaySlider = initializeOverlaySlider(getContext(), R.drawable.slider_range,
+                    R.drawable.slider, R.drawable.slider_pressed, orientation);
         }
     }
 
@@ -815,6 +908,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         sPrefsEditor.putFloat(ButtonType.STICK_C + "-Y", (((float) res.getInteger(R.integer.N3DS_STICK_C_Y) / 1000) * maxY));
         sPrefsEditor.putFloat(ButtonType.STICK_LEFT + "-X", (((float) res.getInteger(R.integer.N3DS_STICK_MAIN_X) / 1000) * maxX));
         sPrefsEditor.putFloat(ButtonType.STICK_LEFT + "-Y", (((float) res.getInteger(R.integer.N3DS_STICK_MAIN_Y) / 1000) * maxY));
+        sPrefsEditor.putFloat("DepthSlider" + "-X", (((float) res.getInteger(R.integer.N3DS_DEPTH_SLIDER_PORTRAIT_X) / 1000) * maxX));
+        sPrefsEditor.putFloat("DepthSlider" + "-Y", (((float) res.getInteger(R.integer.N3DS_DEPTH_SLIDER_PORTRAIT_Y) / 1000) * maxY));
 
         // We want to commit right away, otherwise the overlay could load before this is saved.
         sPrefsEditor.commit();
@@ -867,6 +962,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         sPrefsEditor.putFloat(ButtonType.STICK_C + portrait + "-Y", (((float) res.getInteger(R.integer.N3DS_STICK_C_PORTRAIT_Y) / 1000) * maxY));
         sPrefsEditor.putFloat(ButtonType.STICK_LEFT + portrait + "-X", (((float) res.getInteger(R.integer.N3DS_STICK_MAIN_PORTRAIT_X) / 1000) * maxX));
         sPrefsEditor.putFloat(ButtonType.STICK_LEFT + portrait + "-Y", (((float) res.getInteger(R.integer.N3DS_STICK_MAIN_PORTRAIT_Y) / 1000) * maxY));
+        sPrefsEditor.putFloat("DepthSlider" + portrait + "-X", (((float) res.getInteger(R.integer.N3DS_DEPTH_SLIDER_PORTRAIT_X) / 1000) * maxX));
+        sPrefsEditor.putFloat("DepthSlider" + portrait + "-Y", (((float) res.getInteger(R.integer.N3DS_DEPTH_SLIDER_PORTRAIT_Y) / 1000) * maxY));
 
         // We want to commit right away, otherwise the overlay could load before this is saved.
         sPrefsEditor.commit();
