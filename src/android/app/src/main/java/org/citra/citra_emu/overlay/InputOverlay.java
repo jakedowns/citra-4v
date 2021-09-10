@@ -718,6 +718,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
                 if (mSliderBeingConfigured == null &&
+                        overlaySlider != null &&
                         overlaySlider.getBounds().contains(fingerPositionX, fingerPositionY)) {
                     mSliderBeingConfigured = overlaySlider;
                     mSliderBeingConfigured.onConfigureTouch(event);
