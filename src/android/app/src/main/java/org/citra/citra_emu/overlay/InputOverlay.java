@@ -377,6 +377,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
 
         int pointerIndex = event.getActionIndex();
 
+        // TODO: enable optional haptics for touchscreen too?
         if (mPreferences.getBoolean("isTouchEnabled", true)) {
             switch (event.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
@@ -408,9 +409,12 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         HashMap<Integer, Integer> buttonsPreviouslyPressed = new HashMap<Integer, Integer>(mButtonsCurrentlyPressed);
         mButtonsCurrentlyPressed = new HashMap<Integer, Integer>();
 
+        final int actionMasked = event.getAction() & MotionEvent.ACTION_MASK;
+        boolean didRelease = false;
+
         for (InputOverlayDrawableButton button : overlayButtons) {
             // Determine the button state to apply based on the MotionEvent action flag.
-            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            switch (actionMasked) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_POINTER_DOWN:
                     // If a pointer enters the bounds of a button, press that button.
@@ -429,6 +433,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                         button.setPressedState(false);
                         NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
                                 ButtonState.RELEASED);
+                        didRelease = true;
                     }
                     break;
             }
@@ -436,7 +441,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
 
         for (InputOverlayDrawableDpad dpad : overlayDpads) {
             // Determine the button state to apply based on the MotionEvent action flag.
-            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            switch (actionMasked) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_POINTER_DOWN:
                     // If a pointer enters the bounds of a button, press that button.
@@ -452,6 +457,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                             dpad.setState(InputOverlayDrawableDpad.STATE_DEFAULT);
                             NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, dpad.getId(i),
                                     NativeLibrary.ButtonState.RELEASED);
+                            didRelease = true;
                         }
                         dpad.setTrackId(-1);
                     }
@@ -479,8 +485,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                         int last_state = dpad.getState();
 
                         if (EmulationMenuSettings.getDpadSlideEnable()
-                                || (event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN
-                                || (event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN) {
+                                || actionMasked == MotionEvent.ACTION_DOWN
+                                || actionMasked == MotionEvent.ACTION_POINTER_DOWN) {
                             if (AxisY < -InputOverlayDrawableDpad.VIRT_AXIS_DEADZONE) {
                                 mButtonsCurrentlyPressed.put(dpad.getId(0),1);
                                 NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, dpad.getId(0),
@@ -489,6 +495,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                             } else {
                                 NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, dpad.getId(0),
                                         NativeLibrary.ButtonState.RELEASED);
+                                didRelease = true;
                             }
                             if (AxisY > InputOverlayDrawableDpad.VIRT_AXIS_DEADZONE) {
                                 mButtonsCurrentlyPressed.put(dpad.getId(1),1);
@@ -498,6 +505,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                             } else {
                                 NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, dpad.getId(1),
                                         NativeLibrary.ButtonState.RELEASED);
+                                didRelease = true;
                             }
                             if (AxisX < -InputOverlayDrawableDpad.VIRT_AXIS_DEADZONE) {
                                 mButtonsCurrentlyPressed.put(dpad.getId(2),1);
@@ -507,6 +515,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                             } else {
                                 NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, dpad.getId(2),
                                         NativeLibrary.ButtonState.RELEASED);
+                                didRelease = true;
                             }
                             if (AxisX > InputOverlayDrawableDpad.VIRT_AXIS_DEADZONE) {
                                 mButtonsCurrentlyPressed.put(dpad.getId(3),1);
@@ -516,6 +525,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                             } else {
                                 NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, dpad.getId(3),
                                         NativeLibrary.ButtonState.RELEASED);
+                                didRelease = true;
                             }
 
                             // Set state
@@ -574,7 +584,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
             newButtonsPressed > 0
             || (
                 EmulationMenuSettings.getVibrateOnReleaseEnable()
-                && numButtonsReleased > 0
+                && (numButtonsReleased > 0 || didRelease)
             )
         ){
             // Not all devices that support VibrationEffect (API>=26) allow Amplitude Control
