@@ -40,6 +40,11 @@
                     android:id="@+id/menu_emulation_dpad_slide_enable"
                     android:checkable="true"
                     android:title="@string/emulation_control_dpad_slide_enable" />
+
+                <item
+                    android:id="@+id/menu_emulation_vibrate_on_release"
+                    android:checkable="true"
+                    android:title="@string/emulation_control_vibrate_on_release" />
             </group>
 
             <item
