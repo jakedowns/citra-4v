@@ -27,6 +27,7 @@ public final class InputOverlayDrawableSlider {
     private int mPreviousTouchX, mPreviousTouchY;
     private int mWidth;
     private int mHeight;
+    private int mAlpha;
     private float mSliderPositionY;
     private float mSliderRelativePosition;
     private Rect mVirtBounds;
@@ -46,10 +47,11 @@ public final class InputOverlayDrawableSlider {
      * @param rectOuter          {@link Rect} which represents the outer slider bounds.
      * @param rectInner          {@link Rect} which represents the inner slider bounds.
      * @param sliderId           Identifier for which slider this is.
+     * @param alpha           0-255 alpha int
      */
     public InputOverlayDrawableSlider(Resources res, Bitmap bitmapOuter, Bitmap bitmapInnerDefault,
                                       Bitmap bitmapInnerPressed, Rect rectOuter,
-                                      Rect rectInner, int sliderId) {
+                                      Rect rectInner, int sliderId, int alpha) {
         mOuterBitmap = new BitmapDrawable(res, bitmapOuter);
         mDefaultStateInnerBitmap = new BitmapDrawable(res, bitmapInnerDefault);
         mPressedStateInnerBitmap = new BitmapDrawable(res, bitmapInnerPressed);
@@ -57,11 +59,17 @@ public final class InputOverlayDrawableSlider {
         mWidth = bitmapOuter.getWidth();
         mHeight = bitmapOuter.getHeight();
 
+        mAlpha = alpha;
+
+        mOuterBitmap.setAlpha(alpha);
+        mDefaultStateInnerBitmap.setAlpha(alpha);
+        mPressedStateInnerBitmap.setAlpha(alpha);
+
         // TODO: feed relative value in at init time
         // for now: fake it:
         mSliderRelativePosition = 0.3f;
         // reverse calculate px value from relative value
-        mSliderPositionY = (int) (mSliderRelativePosition * rectOuter.height()) / 1.f;
+        mSliderPositionY = (int) (mSliderRelativePosition * rectOuter.height());
 
         setBounds(rectOuter);
         mDefaultStateInnerBitmap.setBounds(rectInner);
@@ -156,7 +164,7 @@ public final class InputOverlayDrawableSlider {
                 if (GetInnerBounds().contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex))) {
                     mPressedState = true;
                     mOuterBitmap.setAlpha(0);
-                    mBoundsBoxBitmap.setAlpha(255);
+                    mBoundsBoxBitmap.setAlpha(mAlpha);
 //                    if (EmulationMenuSettings.getJoystickRelCenter()) {
 //                        getVirtBounds().offset((int) event.getX(pointerIndex) - getVirtBounds().centerX(),
 //                                (int) event.getY(pointerIndex) - getVirtBounds().centerY());
@@ -168,7 +176,7 @@ public final class InputOverlayDrawableSlider {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
                 mPressedState = false;
-                mOuterBitmap.setAlpha(255);
+                mOuterBitmap.setAlpha(mAlpha);
                 mBoundsBoxBitmap.setAlpha(0);
                 setVirtBounds(new Rect(mOrigBounds.left, mOrigBounds.top, mOrigBounds.right,
                         mOrigBounds.bottom));

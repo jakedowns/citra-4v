@@ -170,13 +170,15 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         scale *= (sPrefs.getInt("controlScale", 50) + 50);
         scale /= 100;
 
+        int alpha = sPrefs.getInt("controlOpacity", 100) * 255 / 100;
+
         // Initialize the InputOverlayDrawableButton.
         final Bitmap defaultStateBitmap =
                 resizeBitmap(context, BitmapFactory.decodeResource(res, defaultResId), scale);
         final Bitmap pressedStateBitmap =
                 resizeBitmap(context, BitmapFactory.decodeResource(res, pressedResId), scale);
         final InputOverlayDrawableButton overlayDrawable =
-                new InputOverlayDrawableButton(res, defaultStateBitmap, pressedStateBitmap, buttonId);
+                new InputOverlayDrawableButton(res, defaultStateBitmap, pressedStateBitmap, buttonId, alpha);
 
         // The X and Y coordinates of the InputOverlayDrawableButton on the InputOverlay.
         // These were set in the input overlay configuration menu.
@@ -235,6 +237,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         scale *= (sPrefs.getInt("controlScale", 50) + 50);
         scale /= 100;
 
+        int alpha = sPrefs.getInt("controlOpacity", 100) * 255 / 100;
+
         // Initialize the InputOverlayDrawableDpad.
         final Bitmap defaultStateBitmap = resizeBitmap(context, BitmapFactory.decodeResource(res, defaultResId), scale);
         final Bitmap pressedOneDirectionStateBitmap = resizeBitmap(context,
@@ -243,7 +247,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                 BitmapFactory.decodeResource(res, pressedTwoDirectionsResId), scale);
         final InputOverlayDrawableDpad overlayDrawable = new InputOverlayDrawableDpad(res, defaultStateBitmap,
                 pressedOneDirectionStateBitmap, pressedTwoDirectionsStateBitmap, buttonUp, buttonDown, buttonLeft,
-                buttonRight);
+                buttonRight, alpha);
 
         // The X and Y coordinates of the InputOverlayDrawableDpad on the InputOverlay.
         // These were set in the input overlay configuration menu.
@@ -316,6 +320,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                 drawableY + (int) (outerSize / outerScale));
         Rect innerRect = new Rect(0, 0, (int) (outerSize / outerScale), (int) (outerSize / outerScale));
 
+        int alpha = sPrefs.getInt("controlOpacity", 100) * 255 / 100;
+
         // Send the drawableId to the joystick so it can be referenced when saving
         // control position.
         final InputOverlayDrawableJoystick overlayDrawable = new InputOverlayDrawableJoystick(res, bitmapOuter,
@@ -367,11 +373,13 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                 drawableY + (int) (outerHeight / outerScale));
         Rect innerRect = new Rect(0, 0, (int) (innerWidth / outerScale), (int) (innerHeight / outerScale));
 
+        int alpha = sPrefs.getInt("controlOpacity", 100) * 255 / 100;
+
         // Send the drawableId to the joystick so it can be referenced when saving control position.
         final InputOverlayDrawableSlider overlayDrawable
                 = new InputOverlayDrawableSlider(res, bitmapOuter,
                 bitmapInnerDefault, bitmapInnerPressed,
-                outerRect, innerRect, 14);
+                outerRect, innerRect, 14, alpha);
 
         // Need to set the image's position
         overlayDrawable.setPosition(drawableX, drawableY);
