@@ -73,46 +73,65 @@ public final class EmulationActivity extends AppCompatActivity {
     public static final int MENU_ACTION_JOYSTICK_REL_CENTER = 15;
     public static final int MENU_ACTION_DPAD_SLIDE_ENABLE = 16;
     public static final int MENU_ACTION_HAPTIC_FEEDBACK = 17;
+    public static final int MENU_ACTION_VIBRATE_ON_RELEASE = 21;
 
     public static final int REQUEST_SELECT_AMIIBO = 2;
     private static final int EMULATION_RUNNING_NOTIFICATION = 0x1000;
     private static SparseIntArray buttonsActionsMap = new SparseIntArray();
 
     static {
-        buttonsActionsMap.append(R.id.menu_emulation_edit_layout,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_edit_layout,
                 EmulationActivity.MENU_ACTION_EDIT_CONTROLS_PLACEMENT);
-        buttonsActionsMap.append(R.id.menu_emulation_toggle_controls,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_toggle_controls,
                 EmulationActivity.MENU_ACTION_TOGGLE_CONTROLS);
         buttonsActionsMap
-                .append(R.id.menu_emulation_adjust_scale, EmulationActivity.MENU_ACTION_ADJUST_SCALE);
-        buttonsActionsMap.append(R.id.menu_emulation_show_fps,
+                .append(R.id.menu_emulation_adjust_scale,
+                EmulationActivity.MENU_ACTION_ADJUST_SCALE);
+        buttonsActionsMap
+                .append(R.id.menu_emulation_show_fps,
                 EmulationActivity.MENU_ACTION_SHOW_FPS);
-        buttonsActionsMap.append(R.id.menu_screen_layout_landscape,
+        buttonsActionsMap
+                .append(R.id.menu_screen_layout_landscape,
                 EmulationActivity.MENU_ACTION_SCREEN_LAYOUT_LANDSCAPE);
-        buttonsActionsMap.append(R.id.menu_screen_layout_portrait,
+        buttonsActionsMap
+                .append(R.id.menu_screen_layout_portrait,
                 EmulationActivity.MENU_ACTION_SCREEN_LAYOUT_PORTRAIT);
-        buttonsActionsMap.append(R.id.menu_screen_layout_single,
+        buttonsActionsMap
+                .append(R.id.menu_screen_layout_single,
                 EmulationActivity.MENU_ACTION_SCREEN_LAYOUT_SINGLE);
-        buttonsActionsMap.append(R.id.menu_screen_layout_sidebyside,
+        buttonsActionsMap
+                .append(R.id.menu_screen_layout_sidebyside,
                 EmulationActivity.MENU_ACTION_SCREEN_LAYOUT_SIDEBYSIDE);
-        buttonsActionsMap.append(R.id.menu_emulation_swap_screens,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_swap_screens,
                 EmulationActivity.MENU_ACTION_SWAP_SCREENS);
         buttonsActionsMap
-                .append(R.id.menu_emulation_reset_overlay, EmulationActivity.MENU_ACTION_RESET_OVERLAY);
+                .append(R.id.menu_emulation_reset_overlay,
+                EmulationActivity.MENU_ACTION_RESET_OVERLAY);
         buttonsActionsMap
-                .append(R.id.menu_emulation_show_overlay, EmulationActivity.MENU_ACTION_SHOW_OVERLAY);
+                .append(R.id.menu_emulation_show_overlay,
+                EmulationActivity.MENU_ACTION_SHOW_OVERLAY);
         buttonsActionsMap
-                .append(R.id.menu_emulation_open_settings, EmulationActivity.MENU_ACTION_OPEN_SETTINGS);
+                .append(R.id.menu_emulation_open_settings,
+                EmulationActivity.MENU_ACTION_OPEN_SETTINGS);
         buttonsActionsMap
-                .append(R.id.menu_emulation_amiibo_load, EmulationActivity.MENU_ACTION_LOAD_AMIIBO);
+                .append(R.id.menu_emulation_amiibo_load,
+                EmulationActivity.MENU_ACTION_LOAD_AMIIBO);
         buttonsActionsMap
-                .append(R.id.menu_emulation_amiibo_remove, EmulationActivity.MENU_ACTION_REMOVE_AMIIBO);
-        buttonsActionsMap.append(R.id.menu_emulation_joystick_rel_center,
+                .append(R.id.menu_emulation_amiibo_remove,
+                EmulationActivity.MENU_ACTION_REMOVE_AMIIBO);
+        buttonsActionsMap
+                .append(R.id.menu_emulation_joystick_rel_center,
                 EmulationActivity.MENU_ACTION_JOYSTICK_REL_CENTER);
-        buttonsActionsMap.append(R.id.menu_emulation_dpad_slide_enable,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_dpad_slide_enable,
                 EmulationActivity.MENU_ACTION_DPAD_SLIDE_ENABLE);
         buttonsActionsMap.append(R.id.menu_emulation_haptic_feedback,
                 EmulationActivity.MENU_ACTION_HAPTIC_FEEDBACK);
+        buttonsActionsMap.append(R.id.menu_emulation_vibrate_on_release,
+                EmulationActivity.MENU_ACTION_VIBRATE_ON_RELEASE);
     }
 
     private View mDecorView;
@@ -476,6 +495,11 @@ public final class EmulationActivity extends AppCompatActivity {
                 break;
             case MENU_ACTION_HAPTIC_FEEDBACK:
                 adjustHapticFeedback();
+                break;
+            case MENU_ACTION_VIBRATE_ON_RELEASE:
+                final boolean isVibrateOnReleaseEnabled = !EmulationMenuSettings.getVibrateOnReleaseEnable();
+                EmulationMenuSettings.setVibrateOnReleaseEnable(isVibrateOnReleaseEnabled);
+                item.setChecked(isVibrateOnReleaseEnabled);
                 break;
         }
 
