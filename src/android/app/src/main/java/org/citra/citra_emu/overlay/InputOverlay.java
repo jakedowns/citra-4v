@@ -325,7 +325,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         // Send the drawableId to the joystick so it can be referenced when saving
         // control position.
         final InputOverlayDrawableJoystick overlayDrawable = new InputOverlayDrawableJoystick(res, bitmapOuter,
-                bitmapInnerDefault, bitmapInnerPressed, outerRect, innerRect, joystick);
+                bitmapInnerDefault, bitmapInnerPressed, outerRect, innerRect, joystick, alpha);
 
         // Need to set the image's position
         overlayDrawable.setPosition(drawableX, drawableY);
