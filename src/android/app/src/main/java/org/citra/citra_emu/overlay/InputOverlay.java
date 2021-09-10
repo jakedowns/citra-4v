@@ -515,6 +515,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                             button.setTrackId(event.getPointerId(i));
                             mButtonsCurrentlyPressed.put(button.getId(), 1);
                             mButtonsCurrentlyPressed.put(button.getId(),1);
+                        mButtonsCurrentlyPressed.put(button.getId(),1);
                         NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
                                     ButtonState.PRESSED);
                         }
