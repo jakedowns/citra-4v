@@ -47,13 +47,10 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
     private final Set<InputOverlayDrawableDpad> overlayDpads = new HashSet<>();
     private final Set<InputOverlayDrawableJoystick> overlayJoysticks = new HashSet<>();
 
-    private InputOverlayDrawableSlider overlaySlider;
-
     private boolean mIsInEditMode = false;
     private InputOverlayDrawableButton mButtonBeingConfigured;
     private InputOverlayDrawableDpad mDpadBeingConfigured;
     private InputOverlayDrawableJoystick mJoystickBeingConfigured;
-    private InputOverlayDrawableSlider mSliderBeingConfigured;
 
     private HashMap<Integer, Integer> mButtonsCurrentlyPressed = new HashMap<Integer,Integer>();
     private ArrayList<Integer> mHapticEnabledButtons = new ArrayList<Integer>();
@@ -517,8 +514,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                             button.setPressedState(true);
                             button.setTrackId(event.getPointerId(i));
                             mButtonsCurrentlyPressed.put(button.getId(), 1);
-                            NativeLibrary.onGamePadEvent(
-                                    NativeLibrary.TouchScreenDevice, button.getId(),
+                            mButtonsCurrentlyPressed.put(button.getId(),1);
+                        NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
                                     ButtonState.PRESSED);
                         }
                         break;
@@ -661,9 +658,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
             NativeLibrary.onGamePadMoveEvent(NativeLibrary.TouchScreenDevice, axisID, axises[0], axises[1]);
         }
 
-        if(overlaySlider != null){
-            overlaySlider.TrackEvent(event,v);
-        }
         int prevNumPressed = buttonsPreviouslyPressed.size();
         int currNumPressed = mButtonsCurrentlyPressed.size();
         int newButtonsPressed = 0;
