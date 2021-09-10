@@ -35,6 +35,7 @@ public final class InputOverlayDrawableDpad {
     private int mControlPositionX, mControlPositionY;
     private int mWidth;
     private int mHeight;
+    private int mAlpha;
     private BitmapDrawable mDefaultStateBitmap;
     private BitmapDrawable mPressedOneDirectionStateBitmap;
     private BitmapDrawable mPressedTwoDirectionsStateBitmap;
@@ -51,13 +52,15 @@ public final class InputOverlayDrawableDpad {
      * @param buttonDown                      Identifier for the down button.
      * @param buttonLeft                      Identifier for the left button.
      * @param buttonRight                     Identifier for the right button.
+     * @param alpha                           0-255 alpha value
      */
     public InputOverlayDrawableDpad(Resources res,
                                     Bitmap defaultStateBitmap,
                                     Bitmap pressedOneDirectionStateBitmap,
                                     Bitmap pressedTwoDirectionsStateBitmap,
                                     int buttonUp, int buttonDown,
-                                    int buttonLeft, int buttonRight) {
+                                    int buttonLeft, int buttonRight,
+                                    int alpha) {
         mDefaultStateBitmap = new BitmapDrawable(res, defaultStateBitmap);
         mPressedOneDirectionStateBitmap = new BitmapDrawable(res, pressedOneDirectionStateBitmap);
         mPressedTwoDirectionsStateBitmap = new BitmapDrawable(res, pressedTwoDirectionsStateBitmap);
@@ -70,6 +73,8 @@ public final class InputOverlayDrawableDpad {
         mButtonType[2] = buttonLeft;
         mButtonType[3] = buttonRight;
 
+        mAlpha = alpha;
+
         mTrackId = -1;
     }
 
@@ -78,47 +83,56 @@ public final class InputOverlayDrawableDpad {
         int py = mControlPositionY + (getHeight() / 2);
         switch (mPressState) {
             case STATE_DEFAULT:
+                mDefaultStateBitmap.setAlpha(mAlpha);
                 mDefaultStateBitmap.draw(canvas);
                 break;
             case STATE_PRESSED_UP:
+                mPressedOneDirectionStateBitmap.setAlpha(mAlpha);
                 mPressedOneDirectionStateBitmap.draw(canvas);
                 break;
             case STATE_PRESSED_RIGHT:
                 canvas.save();
                 canvas.rotate(90, px, py);
+                mPressedOneDirectionStateBitmap.setAlpha(mAlpha);
                 mPressedOneDirectionStateBitmap.draw(canvas);
                 canvas.restore();
                 break;
             case STATE_PRESSED_DOWN:
                 canvas.save();
                 canvas.rotate(180, px, py);
+                mPressedOneDirectionStateBitmap.setAlpha(mAlpha);
                 mPressedOneDirectionStateBitmap.draw(canvas);
                 canvas.restore();
                 break;
             case STATE_PRESSED_LEFT:
                 canvas.save();
                 canvas.rotate(270, px, py);
+                mPressedOneDirectionStateBitmap.setAlpha(mAlpha);
                 mPressedOneDirectionStateBitmap.draw(canvas);
                 canvas.restore();
                 break;
             case STATE_PRESSED_UP_LEFT:
+                mPressedTwoDirectionsStateBitmap.setAlpha(mAlpha);
                 mPressedTwoDirectionsStateBitmap.draw(canvas);
                 break;
             case STATE_PRESSED_UP_RIGHT:
                 canvas.save();
                 canvas.rotate(90, px, py);
+                mPressedTwoDirectionsStateBitmap.setAlpha(mAlpha);
                 mPressedTwoDirectionsStateBitmap.draw(canvas);
                 canvas.restore();
                 break;
             case STATE_PRESSED_DOWN_RIGHT:
                 canvas.save();
                 canvas.rotate(180, px, py);
+                mPressedTwoDirectionsStateBitmap.setAlpha(mAlpha);
                 mPressedTwoDirectionsStateBitmap.draw(canvas);
                 canvas.restore();
                 break;
             case STATE_PRESSED_DOWN_LEFT:
                 canvas.save();
                 canvas.rotate(270, px, py);
+                mPressedTwoDirectionsStateBitmap.setAlpha(mAlpha);
                 mPressedTwoDirectionsStateBitmap.draw(canvas);
                 canvas.restore();
                 break;

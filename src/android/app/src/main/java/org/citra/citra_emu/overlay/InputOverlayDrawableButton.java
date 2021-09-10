@@ -25,6 +25,7 @@ public final class InputOverlayDrawableButton {
     private int mControlPositionX, mControlPositionY;
     private int mWidth;
     private int mHeight;
+    private int mAlpha;
     private BitmapDrawable mDefaultStateBitmap;
     private BitmapDrawable mPressedStateBitmap;
     private boolean mPressedState = false;
@@ -38,10 +39,11 @@ public final class InputOverlayDrawableButton {
      * @param buttonType         Identifier for this type of button.
      */
     public InputOverlayDrawableButton(Resources res, Bitmap defaultStateBitmap,
-                                      Bitmap pressedStateBitmap, int buttonType) {
+                                      Bitmap pressedStateBitmap, int buttonType, int alpha) {
         mDefaultStateBitmap = new BitmapDrawable(res, defaultStateBitmap);
         mPressedStateBitmap = new BitmapDrawable(res, pressedStateBitmap);
         mButtonType = buttonType;
+        mAlpha = alpha;
 
         mWidth = mDefaultStateBitmap.getIntrinsicWidth();
         mHeight = mDefaultStateBitmap.getIntrinsicHeight();
@@ -92,7 +94,9 @@ public final class InputOverlayDrawableButton {
     }
 
     public void draw(Canvas canvas) {
-        getCurrentStateBitmapDrawable().draw(canvas);
+        BitmapDrawable bitmap = getCurrentStateBitmapDrawable();
+        bitmap.setAlpha(mAlpha);
+        bitmap.draw(canvas);
     }
 
     private BitmapDrawable getCurrentStateBitmapDrawable() {
