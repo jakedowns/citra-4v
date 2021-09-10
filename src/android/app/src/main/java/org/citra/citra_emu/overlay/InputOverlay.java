@@ -477,27 +477,63 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
 
         for (InputOverlayDrawableButton button : overlayButtons) {
             // Determine the button state to apply based on the MotionEvent action flag.
-            switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                case MotionEvent.ACTION_DOWN:
-                case MotionEvent.ACTION_POINTER_DOWN:
+            final int unmaskedInput = event.getAction() & MotionEvent.ACTION_MASK;
+            boolean buttonPrevHit = buttonsPreviouslyPressed.containsKey(button.getId());
+            for (int i = 0; i < event.getPointerCount(); i++) {
+                boolean buttonHit = button.getBounds().contains(
+                        (int) event.getX(i),
+                        (int) event.getY(i));
+//                Log.info(event.getPointerCount()+ " "+i+" "+buttonHit+ " "+buttonPrevHit);
+                switch (unmaskedInput) {
+                    case MotionEvent.ACTION_MOVE:
+                        if (EmulationMenuSettings.getFaceButtonSlideEnable()) {
+                            // If a pointer enters the bounds of a button, press that button.
+                            if (buttonHit) {
+                                button.setPressedState(true);
+                                button.setTrackId(event.getPointerId(i));
+                                mButtonsCurrentlyPressed.put(button.getId(), 1);
+                                NativeLibrary.onGamePadEvent(
+                                        NativeLibrary.TouchScreenDevice, button.getId(),
+                                        ButtonState.PRESSED
+                                );
+                            } else if (
+                                buttonPrevHit
+                                && button.getTrackId() == event.getPointerId(i)
+                            ) {
+                                // pointer left button bounds, release it
+                                button.setPressedState(false);
+                                NativeLibrary.onGamePadEvent(
+                                        NativeLibrary.TouchScreenDevice, button.getId(),
+                                        ButtonState.RELEASED
+                                );
+                            }
+                        }
+                        break;
+
                     // If a pointer enters the bounds of a button, press that button.
-                    if (button.getBounds().contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex))) {
-                        button.setPressedState(true);
-                        button.setTrackId(event.getPointerId(pointerIndex));
-                        mButtonsCurrentlyPressed.put(button.getId(),1);
-                        NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
-                                ButtonState.PRESSED);
-                    }
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_POINTER_UP:
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        if (buttonHit) {
+                            button.setPressedState(true);
+                            button.setTrackId(event.getPointerId(i));
+                            mButtonsCurrentlyPressed.put(button.getId(), 1);
+                            NativeLibrary.onGamePadEvent(
+                                    NativeLibrary.TouchScreenDevice, button.getId(),
+                                    ButtonState.PRESSED);
+                        }
+                        break;
+
                     // If a pointer ends, release the button it was pressing.
-                    if (button.getTrackId() == event.getPointerId(pointerIndex)) {
-                        button.setPressedState(false);
-                        NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
-                                ButtonState.RELEASED);
-                    }
-                    break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_POINTER_UP:
+                        if (button.getTrackId() == event.getPointerId(i)) {
+                            button.setPressedState(false);
+                            NativeLibrary.onGamePadEvent(
+                                    NativeLibrary.TouchScreenDevice, button.getId(),
+                                    ButtonState.RELEASED);
+                        }
+                        break;
+                }
             }
         }
 
@@ -628,8 +664,10 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         if(overlaySlider != null){
             overlaySlider.TrackEvent(event,v);
         }
-
+        int prevNumPressed = buttonsPreviouslyPressed.size();
+        int currNumPressed = mButtonsCurrentlyPressed.size();
         int newButtonsPressed = 0;
+        int numButtonsReleased = prevNumPressed - currNumPressed;
         for(Integer checkType : mHapticEnabledButtons){
             if(
                 mButtonsCurrentlyPressed.containsKey(checkType)
@@ -638,7 +676,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                 newButtonsPressed++;
             }
         }
-        if(newButtonsPressed>0){
+        if(newButtonsPressed>0||numButtonsReleased>0){
             // Not all devices that support VibrationEffect (API>=26) allow Amplitude Control
             // TODO: could expose vibration duration (ms) and amplitude as separate user preferences
             // Could also allow them (if they're crazy enough) to let it keep vibrating for the duration of the press?
