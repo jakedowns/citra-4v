@@ -37,3 +37,7 @@ Thumbs.db
 # Flatpak generated files
 .flatpak-builder/
 repo/
+*.prefs
+src/android/app/.project
+src/android/app/.classpath
+src/android/.project
