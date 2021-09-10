@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "org.citra.citra_emu.debug",
+  "variantName": "processRelWithDebInfoResources",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "versionCode": 17804970,
+      "versionName": "41dcf4c30-debug",
+      "outputFile": "app-relWithDebInfo.apk"
+    }
+  ]
+}
