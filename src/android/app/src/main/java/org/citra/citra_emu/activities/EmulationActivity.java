@@ -79,7 +79,6 @@ public final class EmulationActivity extends AppCompatActivity
     public static final int MENU_ACTION_EDIT_CONTROLS_PLACEMENT = 0;
     public static final int MENU_ACTION_TOGGLE_CONTROLS = 1;
     public static final int MENU_ACTION_ADJUST_SCALE = 2;
-    public static final int MENU_ACTION_ADJUST_OPACITY = 18;
     public static final int MENU_ACTION_EXIT = 3;
     public static final int MENU_ACTION_SHOW_FPS = 4;
     public static final int MENU_ACTION_SCREEN_LAYOUT_LANDSCAPE = 5;
@@ -94,9 +93,11 @@ public final class EmulationActivity extends AppCompatActivity
     public static final int MENU_ACTION_REMOVE_AMIIBO = 14;
     public static final int MENU_ACTION_JOYSTICK_REL_CENTER = 15;
     public static final int MENU_ACTION_DPAD_SLIDE_ENABLE = 16;
-    public static final int MENU_ACTION_HAPTIC_FEEDBACK = 17;
-    public static final int MENU_ACTION_VIBRATE_ON_RELEASE = 21;
-    public static final int MENU_ACTION_TOGGLE_DEPTH_SLIDER = 22;
+    public static final int MENU_ACTION_ADJUST_OPACITY = 17;
+    public static final int MENU_ACTION_HAPTIC_FEEDBACK = 18;
+    public static final int MENU_ACTION_VIBRATE_ON_RELEASE = 19;
+    public static final int MENU_ACTION_FACE_BUTTON_SLIDE_ENABLE = 20;
+    public static final int MENU_ACTION_TOGGLE_DEPTH_SLIDER = 21;
 
     public static final int REQUEST_SELECT_AMIIBO = 2;
     private static final int EMULATION_RUNNING_NOTIFICATION = 0x1000;
@@ -159,6 +160,8 @@ public final class EmulationActivity extends AppCompatActivity
                 EmulationActivity.MENU_ACTION_HAPTIC_FEEDBACK);
         buttonsActionsMap.append(R.id.menu_emulation_vibrate_on_release,
                 EmulationActivity.MENU_ACTION_VIBRATE_ON_RELEASE);
+        buttonsActionsMap.append(R.id.menu_emulation_face_button_slide_enable,
+                EmulationActivity.MENU_ACTION_FACE_BUTTON_SLIDE_ENABLE);
     }
 
     private View mDecorView;
@@ -585,6 +588,11 @@ public final class EmulationActivity extends AppCompatActivity
                 final boolean isVibrateOnReleaseEnabled = !EmulationMenuSettings.getVibrateOnReleaseEnable();
                 EmulationMenuSettings.setVibrateOnReleaseEnable(isVibrateOnReleaseEnabled);
                 item.setChecked(isVibrateOnReleaseEnabled);
+                break;
+            case MENU_ACTION_FACE_BUTTON_SLIDE_ENABLE:
+                final boolean isFaceButtonSlideEnabled = !EmulationMenuSettings.getFaceButtonSlideEnable();
+                EmulationMenuSettings.setFaceButtonSlideEnable(isFaceButtonSlideEnabled);
+                item.setChecked(isFaceButtonSlideEnabled);
                 break;
         }
 

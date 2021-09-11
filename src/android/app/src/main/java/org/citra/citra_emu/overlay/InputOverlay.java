@@ -58,6 +58,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
     private HashMap<Integer, Integer> mButtonsCurrentlyPressed = new HashMap<Integer,Integer>();
     private ArrayList<Integer> mHapticEnabledButtons = new ArrayList<Integer>();
 
+    private HashMap<Integer, Integer> mButtonsCurrentlyPressed = new HashMap<Integer,Integer>();
     private SharedPreferences mPreferences;
 
     // Stores the ID of the pointer that interacted with the 3DS touchscreen.
@@ -471,37 +472,71 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
             }
         }
 
-        // clear record
+        boolean didRelease = false;
+        // clone previous list, create new empty list
         HashMap<Integer, Integer> buttonsPreviouslyPressed = new HashMap<Integer, Integer>(mButtonsCurrentlyPressed);
         mButtonsCurrentlyPressed = new HashMap<Integer, Integer>();
 
         final int actionMasked = event.getAction() & MotionEvent.ACTION_MASK;
-        boolean didRelease = false;
-
         for (InputOverlayDrawableButton button : overlayButtons) {
             // Determine the button state to apply based on the MotionEvent action flag.
             switch (actionMasked) {
-                case MotionEvent.ACTION_DOWN:
-                case MotionEvent.ACTION_POINTER_DOWN:
+            boolean buttonPrevHit = buttonsPreviouslyPressed.containsKey(button.getId());
+            for (int i = 0; i < event.getPointerCount(); i++) {
+                boolean buttonHit = button.getBounds().contains(
+                        (int) event.getX(i),
+                        (int) event.getY(i));
+                switch (actionMasked) {
+                    case MotionEvent.ACTION_MOVE:
+                        if (EmulationMenuSettings.getFaceButtonSlideEnable()) {
+                            // If a pointer enters the bounds of a button, press that button.
+                            if (buttonHit) {
+                                button.setPressedState(true);
+                                button.setTrackId(event.getPointerId(i));
+                                mButtonsCurrentlyPressed.put(button.getId(), 1);
+                                NativeLibrary.onGamePadEvent(
+                                        NativeLibrary.TouchScreenDevice, button.getId(),
+                                        ButtonState.PRESSED
+                                );
+                            } else if (
+                                buttonPrevHit
+                                && button.getTrackId() == event.getPointerId(i)
+                            ) {
+                                // pointer left button bounds, release it
+                                button.setPressedState(false);
+                                NativeLibrary.onGamePadEvent(
+                                        NativeLibrary.TouchScreenDevice, button.getId(),
+                                        ButtonState.RELEASED
+                                );
+                            }
+                        }
+                        break;
+
                     // If a pointer enters the bounds of a button, press that button.
-                    if (button.getBounds().contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex))) {
-                        button.setPressedState(true);
-                        button.setTrackId(event.getPointerId(pointerIndex));
-                        mButtonsCurrentlyPressed.put(button.getId(),1);
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        if (buttonHit) {
+                            button.setPressedState(true);
+                            button.setTrackId(event.getPointerId(i));
+                            mButtonsCurrentlyPressed.put(button.getId(), 1);
+                            mButtonsCurrentlyPressed.put(button.getId(),1);
                         NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
-                                ButtonState.PRESSED);
-                    }
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_POINTER_UP:
+                                    ButtonState.PRESSED);
+                        }
+                        break;
+
                     // If a pointer ends, release the button it was pressing.
-                    if (button.getTrackId() == event.getPointerId(pointerIndex)) {
-                        button.setPressedState(false);
-                        NativeLibrary.onGamePadEvent(NativeLibrary.TouchScreenDevice, button.getId(),
-                                ButtonState.RELEASED);
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_POINTER_UP:
+                        if (button.getTrackId() == event.getPointerId(i)) {
+                            button.setPressedState(false);
+                            NativeLibrary.onGamePadEvent(
+                                    NativeLibrary.TouchScreenDevice, button.getId(),
+                                    ButtonState.RELEASED);
                         didRelease = true;
-                    }
-                    break;
+                        }
+                        break;
+                }
             }
         }
 

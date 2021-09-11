@@ -85,4 +85,14 @@ public class EmulationMenuSettings {
     public static boolean getVibrateOnReleaseEnable() {
         return mPreferences.getBoolean("EmulationMenuSettings_VibrateOnReleaseEnable", false);
     }
+
+    public static boolean getFaceButtonSlideEnable() {
+        return mPreferences.getBoolean("EmulationMenuSettings_FaceButtonSlideEnable", true);
+    }
+
+    public static void setFaceButtonSlideEnable(boolean value) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putBoolean("EmulationMenuSettings_FaceButtonSlideEnable", value);
+        editor.apply();
+    }
 }

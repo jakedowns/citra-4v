@@ -49,6 +49,10 @@
                     android:id="@+id/menu_emulation_vibrate_on_release"
                     android:checkable="true"
                     android:title="@string/emulation_control_vibrate_on_release" />
+                <item
+                    android:id="@+id/menu_emulation_face_button_slide_enable"
+                    android:checkable="true"
+                    android:title="@string/emulation_control_face_button_slide_enable" />
             </group>
 
             <item
