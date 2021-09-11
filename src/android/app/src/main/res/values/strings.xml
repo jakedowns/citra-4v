@@ -189,6 +189,7 @@
     <string name="savestate_warning_title">Savestates</string>
     <string name="savestate_warning_message">Warning: Savestates are NOT a replacement for in-game saves, and are not meant to be reliable.\n\nUse at your own risk!</string>
     <string name="haptic_feedback">Adjust Haptic Feedback</string>
+    <string name="emulation_control_vibrate_on_release">Vibrate on Release</string>
 
     <!-- Software Keyboard -->
     <string name="software_keyboard">Software Keyboard</string>
@@ -224,5 +225,4 @@
     <!-- Disk shader cache -->
     <string name="preparing_shaders">Preparing shaders</string>
     <string name="building_shaders">Building shaders</string>
-    <string name="emulation_control_vibrate_on_release">Vibrate on Release</string>
 </resources>
