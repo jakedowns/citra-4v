@@ -481,7 +481,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
                         boolean down = false;
                         boolean left = false;
                         boolean right = false;
-                        int last_state = dpad.getState();
 
                         if (EmulationMenuSettings.getDpadSlideEnable()
                                 || actionMasked == MotionEvent.ACTION_DOWN
