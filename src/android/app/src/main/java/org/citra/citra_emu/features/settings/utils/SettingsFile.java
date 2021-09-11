@@ -128,7 +128,6 @@ public final class SettingsFile {
         //TODO: Add members to sectionsMap when game-specific settings are added
     }
 
-
     private SettingsFile() {
     }
 
@@ -188,8 +187,8 @@ public final class SettingsFile {
     }
 
     /**
-     * Reads a given .ini file from disk and returns it as a HashMap of SettingSections, themselves
-     * effectively a HashMap of key/value settings. If unsuccessful, outputs an error telling why it
+     * Reads a given .ini file from disk and returns it as a HashMap of SettingSections, themselves effectively
+     * a HashMap of key/value settings. If unsuccessful, outputs an error telling why it
      * failed.
      *
      * @param gameId the id of the game to load it's settings.
@@ -207,8 +206,7 @@ public final class SettingsFile {
      * @param sections The HashMap containing the Settings we want to serialize.
      * @param view     The current view.
      */
-    public static void saveFile(final String fileName, TreeMap<String, SettingSection> sections,
-                                SettingsActivityView view) {
+    public static void saveFile(final String fileName, TreeMap<String, SettingSection> sections, SettingsActivityView view) {
         try {
            saveFileSilent(fileName, sections);
         } catch (IOException e) {
@@ -237,7 +235,6 @@ public final class SettingsFile {
         }
     }
 
-
     public static void saveCustomGameSettings(final String gameId, final HashMap<String, SettingSection> sections) {
         Set<String> sortedSections = new TreeSet<>(sections.keySet());
 
@@ -253,6 +250,7 @@ public final class SettingsFile {
             }
         }
     }
+
 
     private static String mapSectionNameFromIni(String generalSectionName) {
         if (sectionsMap.getForward(generalSectionName) != null) {
@@ -272,12 +270,12 @@ public final class SettingsFile {
 
     @NonNull
     private static File getSettingsFile(String fileName) {
-        return new File(
-                DirectoryInitialization.getUserDirectory() + "/config/" + fileName + ".ini");
+        return new File(DirectoryInitialization.getUserDirectory() + "/config/" + fileName + ".ini");
     }
 
     private static File getCustomGameSettingsFile(String gameId) {
-        return new File(DirectoryInitialization.getUserDirectory() + "/GameSettings/" + gameId + ".ini");
+        return new File(
+                    DirectoryInitialization.getUserDirectory() + "/GameSettings/" + gameId + ".ini");
     }
 
     private static SettingSection sectionFromLine(String line, boolean isCustomGame) {

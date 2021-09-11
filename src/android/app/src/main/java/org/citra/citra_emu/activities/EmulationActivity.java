@@ -93,47 +93,69 @@ public final class EmulationActivity extends AppCompatActivity
     public static final int MENU_ACTION_REMOVE_AMIIBO = 14;
     public static final int MENU_ACTION_JOYSTICK_REL_CENTER = 15;
     public static final int MENU_ACTION_DPAD_SLIDE_ENABLE = 16;
-    public static final int MENU_ACTION_TOGGLE_DEPTH_SLIDER = 17;
+    public static final int MENU_ACTION_HAPTIC_FEEDBACK = 17;
+    public static final int MENU_ACTION_VIBRATE_ON_RELEASE = 21;
+    public static final int MENU_ACTION_TOGGLE_DEPTH_SLIDER = 22;
 
     public static final int REQUEST_SELECT_AMIIBO = 2;
     private static final int EMULATION_RUNNING_NOTIFICATION = 0x1000;
     private static SparseIntArray buttonsActionsMap = new SparseIntArray();
 
     static {
-        buttonsActionsMap.append(R.id.menu_emulation_edit_layout,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_edit_layout,
                 EmulationActivity.MENU_ACTION_EDIT_CONTROLS_PLACEMENT);
-        buttonsActionsMap.append(R.id.menu_emulation_toggle_controls,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_toggle_controls,
                 EmulationActivity.MENU_ACTION_TOGGLE_CONTROLS);
         buttonsActionsMap
-                .append(R.id.menu_emulation_adjust_scale, EmulationActivity.MENU_ACTION_ADJUST_SCALE);
-        buttonsActionsMap.append(R.id.menu_emulation_show_fps,
+                .append(R.id.menu_emulation_adjust_scale,
+                EmulationActivity.MENU_ACTION_ADJUST_SCALE);
+        buttonsActionsMap
+                .append(R.id.menu_emulation_show_fps,
                 EmulationActivity.MENU_ACTION_SHOW_FPS);
-        buttonsActionsMap.append(R.id.menu_screen_layout_landscape,
+        buttonsActionsMap
+                .append(R.id.menu_screen_layout_landscape,
                 EmulationActivity.MENU_ACTION_SCREEN_LAYOUT_LANDSCAPE);
-        buttonsActionsMap.append(R.id.menu_screen_layout_portrait,
+        buttonsActionsMap
+                .append(R.id.menu_screen_layout_portrait,
                 EmulationActivity.MENU_ACTION_SCREEN_LAYOUT_PORTRAIT);
-        buttonsActionsMap.append(R.id.menu_screen_layout_single,
+        buttonsActionsMap
+                .append(R.id.menu_screen_layout_single,
                 EmulationActivity.MENU_ACTION_SCREEN_LAYOUT_SINGLE);
-        buttonsActionsMap.append(R.id.menu_screen_layout_sidebyside,
+        buttonsActionsMap
+                .append(R.id.menu_screen_layout_sidebyside,
                 EmulationActivity.MENU_ACTION_SCREEN_LAYOUT_SIDEBYSIDE);
-        buttonsActionsMap.append(R.id.menu_emulation_swap_screens,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_swap_screens,
                 EmulationActivity.MENU_ACTION_SWAP_SCREENS);
         buttonsActionsMap
-                .append(R.id.menu_emulation_reset_overlay, EmulationActivity.MENU_ACTION_RESET_OVERLAY);
+                .append(R.id.menu_emulation_reset_overlay,
+                EmulationActivity.MENU_ACTION_RESET_OVERLAY);
         buttonsActionsMap.append(R.id.menu_emulation_toggle_depth_slider,
                 EmulationActivity.MENU_ACTION_TOGGLE_DEPTH_SLIDER);
         buttonsActionsMap
-                .append(R.id.menu_emulation_show_overlay, EmulationActivity.MENU_ACTION_SHOW_OVERLAY);
+                .append(R.id.menu_emulation_show_overlay,
+                EmulationActivity.MENU_ACTION_SHOW_OVERLAY);
         buttonsActionsMap
-                .append(R.id.menu_emulation_open_settings, EmulationActivity.MENU_ACTION_OPEN_SETTINGS);
+                .append(R.id.menu_emulation_open_settings,
+                EmulationActivity.MENU_ACTION_OPEN_SETTINGS);
         buttonsActionsMap
-                .append(R.id.menu_emulation_amiibo_load, EmulationActivity.MENU_ACTION_LOAD_AMIIBO);
+                .append(R.id.menu_emulation_amiibo_load,
+                EmulationActivity.MENU_ACTION_LOAD_AMIIBO);
         buttonsActionsMap
-                .append(R.id.menu_emulation_amiibo_remove, EmulationActivity.MENU_ACTION_REMOVE_AMIIBO);
-        buttonsActionsMap.append(R.id.menu_emulation_joystick_rel_center,
+                .append(R.id.menu_emulation_amiibo_remove,
+                EmulationActivity.MENU_ACTION_REMOVE_AMIIBO);
+        buttonsActionsMap
+                .append(R.id.menu_emulation_joystick_rel_center,
                 EmulationActivity.MENU_ACTION_JOYSTICK_REL_CENTER);
-        buttonsActionsMap.append(R.id.menu_emulation_dpad_slide_enable,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_dpad_slide_enable,
                 EmulationActivity.MENU_ACTION_DPAD_SLIDE_ENABLE);
+        buttonsActionsMap.append(R.id.menu_emulation_haptic_feedback,
+                EmulationActivity.MENU_ACTION_HAPTIC_FEEDBACK);
+        buttonsActionsMap.append(R.id.menu_emulation_vibrate_on_release,
+                EmulationActivity.MENU_ACTION_VIBRATE_ON_RELEASE);
     }
 
     private View mDecorView;
@@ -548,6 +570,14 @@ public final class EmulationActivity extends AppCompatActivity
                 EmulationMenuSettings.setDpadSlideEnable(isDpadSlideEnabled);
                 item.setChecked(isDpadSlideEnabled);
                 break;
+            case MENU_ACTION_HAPTIC_FEEDBACK:
+                adjustHapticFeedback();
+                break;
+            case MENU_ACTION_VIBRATE_ON_RELEASE:
+                final boolean isVibrateOnReleaseEnabled = !EmulationMenuSettings.getVibrateOnReleaseEnable();
+                EmulationMenuSettings.setVibrateOnReleaseEnable(isVibrateOnReleaseEnabled);
+                item.setChecked(isVibrateOnReleaseEnabled);
+                break;
         }
 
         return true;
@@ -732,11 +762,62 @@ public final class EmulationActivity extends AppCompatActivity
         alertDialog.show();
     }
 
+    private void adjustHapticFeedback() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.dialog_seekbar, null);
+        int defaultHapticLevel = 0;
+
+        final SeekBar seekbar = view.findViewById(R.id.seekbar);
+        final TextView value = view.findViewById(R.id.text_value);
+        final TextView units = view.findViewById(R.id.text_units);
+
+        seekbar.setMax(255);
+        seekbar.setMin(0);
+        seekbar.setProgress(mPreferences.getInt("hapticFeedbackLevel", defaultHapticLevel));
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                value.setText(String.valueOf(Math.round(progress / 255.0 * 100)));
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                setHapticFeedbackLevel(seekbar.getProgress());
+            }
+        });
+
+        value.setText(String.valueOf(Math.round(seekbar.getProgress() / 255.0 * 100)));
+        units.setText("%");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.haptic_feedback);
+        builder.setView(view);
+        final int previousProgress = seekbar.getProgress();
+        builder.setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
+            setHapticFeedbackLevel(previousProgress);
+        });
+        builder.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+            setHapticFeedbackLevel(seekbar.getProgress());
+        });
+        builder.setNeutralButton(R.string.slider_default, (dialogInterface, i) -> {
+            setHapticFeedbackLevel(defaultHapticLevel);
+        });
+
+        builder.create().show();
+    }
+
     private void setControlScale(int scale) {
         SharedPreferences.Editor editor = mPreferences.edit();
         editor.putInt("controlScale", scale);
         editor.apply();
         mEmulationFragment.refreshInputOverlay();
+    }
+
+    private void setHapticFeedbackLevel(int hapticFeedbackLevel) {
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putInt("hapticFeedbackLevel", hapticFeedbackLevel);
+        editor.apply();
     }
 
     private void resetOverlay() {

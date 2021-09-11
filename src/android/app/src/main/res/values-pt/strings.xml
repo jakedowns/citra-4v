@@ -6,6 +6,7 @@
     <string name="app_notification_running">O Citra está em execução</string>
 
     <!-- Input related strings -->
+    <string name="haptic_feedback">Feedback tátil</string>
     <string name="controller_circlepad">Analógico</string>
     <string name="controller_c">Direcional C-Stick</string>
     <string name="controller_triggers">Gatilhos</string>
