@@ -324,6 +324,7 @@ public final class EmulationActivity extends AppCompatActivity {
         menu.findItem(R.id.menu_emulation_show_fps).setChecked(EmulationMenuSettings.getShowFps());
         menu.findItem(R.id.menu_emulation_swap_screens).setChecked(EmulationMenuSettings.getSwapScreens());
         menu.findItem(R.id.menu_emulation_show_overlay).setChecked(EmulationMenuSettings.getShowOverlay());
+        menu.findItem(R.id.menu_emulation_vibrate_on_release).setChecked(EmulationMenuSettings.getVibrateOnReleaseEnable());
 
         return true;
     }
