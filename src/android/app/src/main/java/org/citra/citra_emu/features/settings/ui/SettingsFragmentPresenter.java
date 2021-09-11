@@ -401,11 +401,13 @@ public final class SettingsFragmentPresenter {
         Setting hardwareRenderer = rendererSection.getSetting(SettingsFile.KEY_HW_RENDERER);
         Setting hardwareShader = rendererSection.getSetting(SettingsFile.KEY_HW_SHADER);
         Setting vsyncEnable = rendererSection.getSetting(SettingsFile.KEY_USE_VSYNC);
+        Setting susPerfModeEnable = rendererSection.getSetting(SettingsFile.KEY_USE_SUSTAINED_PERF_MODE);
 
         sl.add(new HeaderSetting(null, null, R.string.debug_warning, 0));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_CPU_JIT, Settings.SECTION_CORE, R.string.cpu_jit, R.string.cpu_jit_description, true, useCpuJit, true, mView));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_HW_RENDERER, Settings.SECTION_RENDERER, R.string.hw_renderer, R.string.hw_renderer_description, true, hardwareRenderer, true, mView));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_HW_SHADER, Settings.SECTION_RENDERER, R.string.hw_shaders, R.string.hw_shaders_description, true, hardwareShader, true, mView));
         sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_VSYNC, Settings.SECTION_RENDERER, R.string.vsync, R.string.vsync_description, true, vsyncEnable));
+        sl.add(new CheckBoxSetting(SettingsFile.KEY_USE_SUSTAINED_PERF_MODE, Settings.SECTION_RENDERER, R.string.sus_perf_mode, R.string.sus_perf_mode_description, true, susPerfModeEnable));
     }
 }

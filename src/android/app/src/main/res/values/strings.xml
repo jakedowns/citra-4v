@@ -69,6 +69,8 @@
     <string name="renderer">Renderer</string>
     <string name="vsync">Enable V-Sync</string>
     <string name="vsync_description">Synchronizes the game frame rate to the refresh rate of your device.</string>
+    <string name="sus_perf_mode">Enable Android SustainedPerformanceMode</string>
+    <string name="sus_perf_mode_description">May reduce thermal throttling by reducing clock speed slightly.</string>
     <string name="linear_filtering">Enable linear filtering</string>
     <string name="linear_filtering_description">Enables linear filtering, which causes game visuals to appear smoother.</string>
     <string name="texture_filter_name">Texture Filter</string>

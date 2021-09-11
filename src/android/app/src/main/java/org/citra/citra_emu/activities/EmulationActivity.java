@@ -60,6 +60,7 @@ import org.citra.citra_emu.utils.FileUtil;
 import org.citra.citra_emu.utils.ForegroundService;
 import org.citra.citra_emu.features.settings.model.SettingsViewModel;
 import org.citra.citra_emu.features.settings.model.SettingsListener;
+import org.citra.citra_emu.utils.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -152,7 +153,9 @@ public final class EmulationActivity extends AppCompatActivity
     private boolean mBacklightHasShutDown;
     private boolean mIsDeviceCurrentlyInPortraitMode;
     private LeiaDisplayManager mDisplayManager;
-//    private SimpleDisplayQuery mLeiaQuery;
+    private SimpleDisplayQuery mLeiaQuery;
+
+    private boolean mDesiredPerfModeEnabled = true;
 
     public static void launch(FragmentActivity activity, String path, String title) {
         Intent launcher = new Intent(activity, EmulationActivity.class);
@@ -170,14 +173,14 @@ public final class EmulationActivity extends AppCompatActivity
         stopService(foregroundService);
         super.onDestroy();
 //        wakeLock.release();
-        getWindow().setSustainedPerformanceMode(false);
+        maybeSetSustainedPerformanceMode(false);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().setSustainedPerformanceMode(true);
+        maybeSetSustainedPerformanceMode(true);
 
         // set up a connection to the settings view model
         // see: updatedSettingsAvailable
@@ -250,7 +253,7 @@ public final class EmulationActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        getWindow().setSustainedPerformanceMode(true);
+        maybeSetSustainedPerformanceMode(true);
         mIsDeviceCurrentlyInPortraitMode = IsPortraitCurrentOrientation();
         checkShouldToggle3D(true);
     }
@@ -259,7 +262,7 @@ public final class EmulationActivity extends AppCompatActivity
     {
         super.onPause();
 
-        getWindow().setSustainedPerformanceMode(false);
+        maybeSetSustainedPerformanceMode(false);
         checkShouldToggle3D(false);
     }
 
@@ -921,6 +924,7 @@ public final class EmulationActivity extends AppCompatActivity
     @Override
     public void updatedSettingsAvailable(Settings settings){
         checkShouldToggle3D(prev_desired_backlight_state);
+        maybeSetSustainedPerformanceMode(mDesiredPerfModeEnabled);
     }
 
     @Override
@@ -962,6 +966,39 @@ public final class EmulationActivity extends AppCompatActivity
         }
 
         prev_desired_backlight_state = desired_state;
+    }
+
+    /**
+     * only enable it if the user is opted-in in the Debug Settings
+     * @param value
+     */
+    public void maybeSetSustainedPerformanceMode(Boolean value){
+        // I miss kotlin's "?."
+        Boolean susPerfModeEnabled = false;
+        if(mSettingsViewModel != null){
+            Settings mSettings = mSettingsViewModel.getSettings();
+            if(mSettings != null){
+                SettingSection rendererSection = mSettings.getSection(Settings.SECTION_RENDERER);
+                if(rendererSection != null){
+                    Setting susPerfModeEnable = rendererSection.getSetting(SettingsFile.KEY_USE_SUSTAINED_PERF_MODE);
+                    if(susPerfModeEnable != null){
+                        // NOTES:
+                        // 1. upon returning from settings menu, this value (if they just updated it) is stale
+                        // that's why we also call this fn in updatedSettingsAvailable
+                        //    because it's async, i'm tracking a raw "mDesiredPerfModeEnabled" to know which to try on callback
+                        // 2. the first time the user loads up settings, this is defaulted to 1 so it looks like it's been enabled already
+                        //    but it's not actually enabled, and it's not in the ini
+                        //    need a way to say, if it's not in the ini, treat it as enabled (or ignore this if we change default to 0)
+                        // maybe getValueAsString could take a default parameter
+                        Log.info("susPerfModeEnabled? "+susPerfModeEnable.getValueAsString()+" toggling to "+String.valueOf(value));
+                        susPerfModeEnabled = susPerfModeEnable.getValueAsString().equals("1");
+                    }
+                }
+            }
+        }
+        boolean valueNext = value && susPerfModeEnabled;
+        mDesiredPerfModeEnabled = value; // note we track the raw requested value, not the outcome of &&'ing it with user preference
+        getWindow().setSustainedPerformanceMode(valueNext);
     }
 
     @Retention(SOURCE)

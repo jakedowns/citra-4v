@@ -47,6 +47,7 @@ public final class SettingsFile {
     public static final String KEY_USE_SHADER_JIT = "use_shader_jit";
     public static final String KEY_USE_DISK_SHADER_CACHE = "use_disk_shader_cache";
     public static final String KEY_USE_VSYNC = "use_vsync_new";
+    public static final String KEY_USE_SUSTAINED_PERF_MODE = "use_sus_perf_mode";
     public static final String KEY_RESOLUTION_FACTOR = "resolution_factor";
     public static final String KEY_FRAME_LIMIT_ENABLED = "use_frame_limit";
     public static final String KEY_FRAME_LIMIT = "frame_limit";
