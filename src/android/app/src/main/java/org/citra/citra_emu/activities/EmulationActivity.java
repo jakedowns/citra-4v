@@ -72,6 +72,7 @@ public final class EmulationActivity extends AppCompatActivity {
     public static final int MENU_ACTION_REMOVE_AMIIBO = 14;
     public static final int MENU_ACTION_JOYSTICK_REL_CENTER = 15;
     public static final int MENU_ACTION_DPAD_SLIDE_ENABLE = 16;
+    public static final int MENU_ACTION_FACE_BUTTON_SLIDE_ENABLE = 20;
 
     public static final int REQUEST_SELECT_AMIIBO = 2;
     private static final int EMULATION_RUNNING_NOTIFICATION = 0x1000;
@@ -110,6 +111,8 @@ public final class EmulationActivity extends AppCompatActivity {
                 EmulationActivity.MENU_ACTION_JOYSTICK_REL_CENTER);
         buttonsActionsMap.append(R.id.menu_emulation_dpad_slide_enable,
                 EmulationActivity.MENU_ACTION_DPAD_SLIDE_ENABLE);
+        buttonsActionsMap.append(R.id.menu_emulation_face_button_slide_enable,
+                EmulationActivity.MENU_ACTION_FACE_BUTTON_SLIDE_ENABLE);
     }
 
     private View mDecorView;
@@ -470,6 +473,11 @@ public final class EmulationActivity extends AppCompatActivity {
                 final boolean isDpadSlideEnabled = !EmulationMenuSettings.getDpadSlideEnable();
                 EmulationMenuSettings.setDpadSlideEnable(isDpadSlideEnabled);
                 item.setChecked(isDpadSlideEnabled);
+                break;
+            case MENU_ACTION_FACE_BUTTON_SLIDE_ENABLE:
+                final boolean isFaceButtonSlideEnabled = !EmulationMenuSettings.getFaceButtonSlideEnable();
+                EmulationMenuSettings.setFaceButtonSlideEnable(isFaceButtonSlideEnabled);
+                item.setChecked(isFaceButtonSlideEnabled);
                 break;
         }
 
