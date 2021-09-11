@@ -649,6 +649,7 @@ public final class NativeLibrary {
         public static final int DPAD = 780;
         public static final int BUTTON_DEBUG = 781;
         public static final int BUTTON_GPIO14 = 782;
+        public static final int DEPTH_SLIDER = 783;
     }
 
     /**

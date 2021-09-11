@@ -27,6 +27,7 @@ public final class InputOverlayDrawableSlider {
     private int mPreviousTouchX, mPreviousTouchY;
     private int mWidth;
     private int mHeight;
+    private int mAlpha;
     private float mSliderPositionY;
     private float mSliderRelativePosition;
     private Rect mVirtBounds;
@@ -46,16 +47,18 @@ public final class InputOverlayDrawableSlider {
      * @param rectOuter          {@link Rect} which represents the outer slider bounds.
      * @param rectInner          {@link Rect} which represents the inner slider bounds.
      * @param sliderId           Identifier for which slider this is.
+     * @param alpha              0-255 alpha value
      */
     public InputOverlayDrawableSlider(Resources res, Bitmap bitmapOuter, Bitmap bitmapInnerDefault,
                                       Bitmap bitmapInnerPressed, Rect rectOuter,
-                                      Rect rectInner, int sliderId) {
+                                      Rect rectInner, int sliderId, int alpha) {
         mOuterBitmap = new BitmapDrawable(res, bitmapOuter);
         mDefaultStateInnerBitmap = new BitmapDrawable(res, bitmapInnerDefault);
         mPressedStateInnerBitmap = new BitmapDrawable(res, bitmapInnerPressed);
         mBoundsBoxBitmap = new BitmapDrawable(res, bitmapOuter);
         mWidth = bitmapOuter.getWidth();
         mHeight = bitmapOuter.getHeight();
+        mAlpha = alpha;
 
         // TODO: feed relative value in at init time
         // for now: fake it:
@@ -71,6 +74,10 @@ public final class InputOverlayDrawableSlider {
         mBoundsBoxBitmap.setAlpha(0);
         mBoundsBoxBitmap.setBounds(getVirtBounds());
         SetInnerBounds();
+
+        mOuterBitmap.setAlpha(mAlpha);
+        mDefaultStateInnerBitmap.setAlpha(mAlpha);
+        mPressedStateInnerBitmap.setAlpha(mAlpha);
     }
 
     public int getId() {

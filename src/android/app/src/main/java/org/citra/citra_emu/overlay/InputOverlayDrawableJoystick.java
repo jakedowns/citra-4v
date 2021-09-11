@@ -29,6 +29,7 @@ public final class InputOverlayDrawableJoystick {
     private int mPreviousTouchX, mPreviousTouchY;
     private int mWidth;
     private int mHeight;
+    private int mAlpha;
     private Rect mVirtBounds;
     private Rect mOrigBounds;
     private BitmapDrawable mOuterBitmap;
@@ -47,10 +48,12 @@ public final class InputOverlayDrawableJoystick {
      * @param rectOuter          {@link Rect} which represents the outer joystick bounds.
      * @param rectInner          {@link Rect} which represents the inner joystick bounds.
      * @param joystick           Identifier for which joystick this is.
+     * @param alpha              0-255 int alpha value
      */
     public InputOverlayDrawableJoystick(Resources res, Bitmap bitmapOuter,
                                         Bitmap bitmapInnerDefault, Bitmap bitmapInnerPressed,
-                                        Rect rectOuter, Rect rectInner, int joystick) {
+                                        Rect rectOuter, Rect rectInner, int joystick,
+                                        int alpha) {
         axisIDs[0] = joystick + 1; // Up
         axisIDs[1] = joystick + 2; // Down
         axisIDs[2] = joystick + 3; // Left
@@ -63,6 +66,7 @@ public final class InputOverlayDrawableJoystick {
         mBoundsBoxBitmap = new BitmapDrawable(res, bitmapOuter);
         mWidth = bitmapOuter.getWidth();
         mHeight = bitmapOuter.getHeight();
+        mAlpha = alpha;
 
         setBounds(rectOuter);
         mDefaultStateInnerBitmap.setBounds(rectInner);
@@ -72,6 +76,10 @@ public final class InputOverlayDrawableJoystick {
         mBoundsBoxBitmap.setAlpha(0);
         mBoundsBoxBitmap.setBounds(getVirtBounds());
         SetInnerBounds();
+
+        mDefaultStateInnerBitmap.setAlpha(alpha);
+        mPressedStateInnerBitmap.setAlpha(alpha);
+        mOuterBitmap.setAlpha(alpha);
     }
 
     /**
@@ -85,6 +93,7 @@ public final class InputOverlayDrawableJoystick {
 
     public void draw(Canvas canvas) {
         mOuterBitmap.draw(canvas);
+        getCurrentStateBitmapDrawable().setAlpha(mAlpha);
         getCurrentStateBitmapDrawable().draw(canvas);
         mBoundsBoxBitmap.draw(canvas);
     }
@@ -98,7 +107,7 @@ public final class InputOverlayDrawableJoystick {
                 if (getBounds().contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex))) {
                     mPressedState = true;
                     mOuterBitmap.setAlpha(0);
-                    mBoundsBoxBitmap.setAlpha(255);
+                    mBoundsBoxBitmap.setAlpha(mAlpha);
                     if (EmulationMenuSettings.getJoystickRelCenter()) {
                         getVirtBounds().offset((int) event.getX(pointerIndex) - getVirtBounds().centerX(),
                                 (int) event.getY(pointerIndex) - getVirtBounds().centerY());
@@ -112,7 +121,7 @@ public final class InputOverlayDrawableJoystick {
                 if (trackId == event.getPointerId(pointerIndex)) {
                     mPressedState = false;
                     axises[0] = axises[1] = 0.0f;
-                    mOuterBitmap.setAlpha(255);
+                    mOuterBitmap.setAlpha(mAlpha);
                     mBoundsBoxBitmap.setAlpha(0);
                     setVirtBounds(new Rect(mOrigBounds.left, mOrigBounds.top, mOrigBounds.right,
                             mOrigBounds.bottom));
