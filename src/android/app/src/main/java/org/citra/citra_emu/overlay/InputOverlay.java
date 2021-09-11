@@ -58,7 +58,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
     private HashMap<Integer, Integer> mButtonsCurrentlyPressed = new HashMap<Integer,Integer>();
     private ArrayList<Integer> mHapticEnabledButtons = new ArrayList<Integer>();
 
-    private HashMap<Integer, Integer> mButtonsCurrentlyPressed = new HashMap<Integer,Integer>();
     private SharedPreferences mPreferences;
 
     // Stores the ID of the pointer that interacted with the 3DS touchscreen.
@@ -480,7 +479,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         final int actionMasked = event.getAction() & MotionEvent.ACTION_MASK;
         for (InputOverlayDrawableButton button : overlayButtons) {
             // Determine the button state to apply based on the MotionEvent action flag.
-            switch (actionMasked) {
             boolean buttonPrevHit = buttonsPreviouslyPressed.containsKey(button.getId());
             for (int i = 0; i < event.getPointerCount(); i++) {
                 boolean buttonHit = button.getBounds().contains(

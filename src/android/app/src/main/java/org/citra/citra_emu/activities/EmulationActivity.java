@@ -114,7 +114,8 @@ public final class EmulationActivity extends AppCompatActivity
                 .append(R.id.menu_emulation_adjust_scale,
                 EmulationActivity.MENU_ACTION_ADJUST_SCALE);
         buttonsActionsMap
-                .append(R.id.menu_emulation_adjust_opacity, EmulationActivity.MENU_ACTION_ADJUST_OPACITY);
+                .append(R.id.menu_emulation_adjust_opacity,
+                EmulationActivity.MENU_ACTION_ADJUST_OPACITY);
         buttonsActionsMap
                 .append(R.id.menu_emulation_show_fps,
                 EmulationActivity.MENU_ACTION_SHOW_FPS);
@@ -156,11 +157,14 @@ public final class EmulationActivity extends AppCompatActivity
         buttonsActionsMap
                 .append(R.id.menu_emulation_dpad_slide_enable,
                 EmulationActivity.MENU_ACTION_DPAD_SLIDE_ENABLE);
-        buttonsActionsMap.append(R.id.menu_emulation_haptic_feedback,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_haptic_feedback,
                 EmulationActivity.MENU_ACTION_HAPTIC_FEEDBACK);
-        buttonsActionsMap.append(R.id.menu_emulation_vibrate_on_release,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_vibrate_on_release,
                 EmulationActivity.MENU_ACTION_VIBRATE_ON_RELEASE);
-        buttonsActionsMap.append(R.id.menu_emulation_face_button_slide_enable,
+        buttonsActionsMap
+                .append(R.id.menu_emulation_face_button_slide_enable,
                 EmulationActivity.MENU_ACTION_FACE_BUTTON_SLIDE_ENABLE);
     }
 
@@ -403,6 +407,8 @@ public final class EmulationActivity extends AppCompatActivity
         menu.findItem(R.id.menu_emulation_show_fps).setChecked(EmulationMenuSettings.getShowFps());
         menu.findItem(R.id.menu_emulation_swap_screens).setChecked(EmulationMenuSettings.getSwapScreens());
         menu.findItem(R.id.menu_emulation_show_overlay).setChecked(EmulationMenuSettings.getShowOverlay());
+        menu.findItem(R.id.menu_emulation_vibrate_on_release).setChecked(EmulationMenuSettings.getVibrateOnReleaseEnable());
+        menu.findItem(R.id.menu_emulation_face_button_slide_enable).setChecked(EmulationMenuSettings.getFaceButtonSlideEnable());
 
         return true;
     }
