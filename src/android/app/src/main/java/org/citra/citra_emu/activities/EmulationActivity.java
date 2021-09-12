@@ -188,6 +188,7 @@ public final class EmulationActivity extends AppCompatActivity
     private SimpleDisplayQuery mLeiaQuery;
 
     private boolean mDesiredPerfModeEnabled = true;
+    private Menu mOptionsMenu;
 
     public static void launch(FragmentActivity activity, String path, String title) {
         Intent launcher = new Intent(activity, EmulationActivity.class);
@@ -387,6 +388,8 @@ public final class EmulationActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_emulation, menu);
+
+        mOptionsMenu = menu;
 
         int layoutOptionMenuItem = R.id.menu_screen_layout_landscape;
         switch (EmulationMenuSettings.getLandscapeScreenLayout()) {
@@ -737,6 +740,10 @@ public final class EmulationActivity extends AppCompatActivity
         final boolean isChecked = mPreferences.getBoolean("buttonToggle13", false);
         editor.putBoolean("buttonToggle13", !isChecked);
         editor.apply();
+
+        mOptionsMenu.findItem(R.id.menu_emulation_toggle_depth_slider).setChecked(!isChecked);
+        EmulationMenuSettings.setDepthSliderEnable(!isChecked);
+
         mEmulationFragment.refreshInputOverlay();
     }
 
