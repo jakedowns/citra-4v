@@ -98,16 +98,22 @@ public final class InputOverlayDrawableSlider {
                 int deltaY = fingerPositionY - mPreviousTouchY;
                 mControlPositionX += deltaX;
                 mControlPositionY += deltaY;
-                setBounds(new Rect(mControlPositionX, mControlPositionY,
-                        mOuterBitmap.getIntrinsicWidth() / mControlPositionX,
-                        mOuterBitmap.getIntrinsicHeight() / mControlPositionY));
-                setVirtBounds(new Rect(mControlPositionX, mControlPositionY,
-                        mOuterBitmap.getIntrinsicWidth() / mControlPositionX,
-                        mOuterBitmap.getIntrinsicHeight() / mControlPositionY));
+                if(mControlPositionX < 1){
+                    mControlPositionX = 1;
+                }
+                if(mControlPositionY < 1){
+                    mControlPositionY = 1;
+                }
+                Rect base = new Rect(
+                    mControlPositionX,
+                    mControlPositionY,
+                    mControlPositionX + mOuterBitmap.getIntrinsicWidth(),
+                    mControlPositionY + mOuterBitmap.getIntrinsicHeight()
+                );
+                setBounds(new Rect(base));
+                setVirtBounds(new Rect(base));
                 SetInnerBounds();
-                setOrigBounds(new Rect(new Rect(mControlPositionX, mControlPositionY,
-                        mOuterBitmap.getIntrinsicWidth() / mControlPositionX,
-                        mOuterBitmap.getIntrinsicHeight() / mControlPositionY)));
+                setOrigBounds(new Rect(base));
                 mPreviousTouchX = fingerPositionX;
                 mPreviousTouchY = fingerPositionY;
                 break;
@@ -134,13 +140,25 @@ public final class InputOverlayDrawableSlider {
 //        if (Y < getVirtBounds().centerY() - (getVirtBounds().height() / 2))
 //            Y = getVirtBounds().centerY() - (getVirtBounds().height() / 2);
 
-        int width = mPressedStateInnerBitmap.getBounds().width();
-        int height = mPressedStateInnerBitmap.getBounds().height();
-        int X = mControlPositionX; //mPressedStateInnerBitmap.getBounds().left;
-        mDefaultStateInnerBitmap.setBounds(X,
-                (int)mSliderPositionY - (height/2),
-                X + width,
-                (int)mSliderPositionY + (height/2));
+        int width = mPressedStateInnerBitmap.getIntrinsicWidth() / 2;
+        int height = mPressedStateInnerBitmap.getIntrinsicHeight() / 2;
+        int X = mOuterBitmap.getBounds().left; //mPressedStateInnerBitmap.getBounds().left;
+        int top = (int)mSliderPositionY - (height/2);
+        if(top < mOuterBitmap.getBounds().top){
+            top = mOuterBitmap.getBounds().top;
+        }
+        int lowerBound = mOuterBitmap.getBounds().top
+                + mOuterBitmap.getBounds().height()
+                - height;
+        if(top > lowerBound){
+            top = lowerBound;
+        }
+        int left = X + mOuterBitmap.getBounds().width() - width;
+        mDefaultStateInnerBitmap.setBounds(
+                left,
+                top,
+                left + width,
+                top + height);
         mPressedStateInnerBitmap.setBounds(mDefaultStateInnerBitmap.getBounds());
     }
 
@@ -169,7 +187,7 @@ public final class InputOverlayDrawableSlider {
 //                                (int) event.getY(pointerIndex) - getVirtBounds().centerY());
 //                    }
                     mBoundsBoxBitmap.setBounds(getVirtBounds());
-//                    trackId = event.getPointerId(pointerIndex);
+                    sliderId = event.getPointerId(pointerIndex);
                 }
                 break;
             case MotionEvent.ACTION_UP:
