@@ -1,6 +1,6 @@
 package org.citra.citra_emu.features.settings.model.view;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.features.settings.model.BooleanSetting;
 import org.citra.citra_emu.features.settings.model.IntSetting;
@@ -59,7 +59,7 @@ public final class CheckBoxSetting extends SettingsItem {
     public IntSetting setChecked(boolean checked) {
         // Show a performance warning if the setting has been disabled
         if (mShowPerformanceWarning && !checked) {
-            mView.showToastMessage(CitraApplication.getAppContext().getString(R.string.performance_warning), true);
+            mView.showToastMessage(Citra4VApplication.getAppContext().getString(R.string.performance_warning), true);
         }
 
         if (getSetting() == null) {

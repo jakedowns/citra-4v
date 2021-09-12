@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.adapters.GameAdapter;
 import org.citra.citra_emu.model.GameDatabase;
@@ -54,7 +54,7 @@ public final class PlatformGamesFragment extends Fragment implements PlatformGam
         // Add swipe down to refresh gesture
         final SwipeRefreshLayout pullToRefresh = view.findViewById(R.id.refresh_grid_games);
         pullToRefresh.setOnRefreshListener(() -> {
-            GameDatabase databaseHelper = CitraApplication.databaseHelper;
+            GameDatabase databaseHelper = Citra4VApplication.databaseHelper;
             databaseHelper.scanLibrary(databaseHelper.getWritableDatabase());
             refresh();
             pullToRefresh.setRefreshing(false);

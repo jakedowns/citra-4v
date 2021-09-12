@@ -1,7 +1,7 @@
 package org.citra.citra_emu.ui.platform;
 
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.model.GameDatabase;
 import org.citra.citra_emu.utils.Log;
 
@@ -27,7 +27,7 @@ public final class PlatformGamesPresenter {
     private void loadGames() {
         Log.debug("[PlatformGamesPresenter] : Loading games...");
 
-        GameDatabase databaseHelper = CitraApplication.databaseHelper;
+        GameDatabase databaseHelper = Citra4VApplication.databaseHelper;
 
         databaseHelper.getGames()
                 .subscribeOn(Schedulers.io())

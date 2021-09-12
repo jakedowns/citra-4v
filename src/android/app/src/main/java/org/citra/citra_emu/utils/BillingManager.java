@@ -17,7 +17,7 @@ import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.features.settings.utils.SettingsFile;
 import org.citra.citra_emu.ui.main.MainActivity;
@@ -35,7 +35,7 @@ public class BillingManager implements PurchasesUpdatedListener {
     private boolean mIsServiceConnected = false;
     private Runnable mUpdateBillingCallback;
 
-    private static SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+    private static SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
 
     public BillingManager(Activity activity) {
         mActivity = activity;

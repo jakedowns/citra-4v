@@ -6,11 +6,11 @@ import android.preference.PreferenceManager;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.features.settings.utils.SettingsFile;
 
 public class ThemeUtil {
-    private static SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+    private static SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
 
     private static void applyTheme(int designValue) {
         switch (designValue) {

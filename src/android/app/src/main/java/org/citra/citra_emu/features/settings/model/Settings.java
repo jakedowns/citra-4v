@@ -2,7 +2,7 @@ package org.citra.citra_emu.features.settings.model;
 
 import android.text.TextUtils;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.features.settings.ui.SettingsActivityView;
 import org.citra.citra_emu.features.settings.utils.SettingsFile;
@@ -152,11 +152,11 @@ public class Settings {
         saveSettingsSilent();
         // Notify via toast
         if (TextUtils.isEmpty(gameId)) {
-            view.showToastMessage(CitraApplication.getAppContext().getString(R.string.ini_saved)
+            view.showToastMessage(Citra4VApplication.getAppContext().getString(R.string.ini_saved)
                     , false);
         } else {
             // custom game settings
-            view.showToastMessage(CitraApplication.getAppContext().getString(R.string.gameid_saved, gameId), false);
+            view.showToastMessage(Citra4VApplication.getAppContext().getString(R.string.gameid_saved, gameId), false);
         }
     }
 }

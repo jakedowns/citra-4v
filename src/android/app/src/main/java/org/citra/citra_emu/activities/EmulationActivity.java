@@ -2,13 +2,11 @@ package org.citra.citra_emu.activities;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.SparseIntArray;
@@ -23,7 +21,6 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -40,11 +37,10 @@ import com.leia.android.lights.BacklightModeListener;
 import static com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_2D;
 import static com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_3D;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.NativeLibrary;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.features.settings.model.view.InputBindingSetting;
-import org.citra.citra_emu.features.settings.ui.SettingsActivityView;
 import org.citra.citra_emu.features.settings.ui.SettingsActivity;
 import org.citra.citra_emu.features.settings.utils.SettingsFile;
 import org.citra.citra_emu.features.settings.model.Settings;
@@ -418,7 +414,7 @@ public final class EmulationActivity extends AppCompatActivity
     }
 
     private void DisplaySavestateWarning() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
         if (preferences.getBoolean("savestateWarningShown", false)) {
             return;
         }

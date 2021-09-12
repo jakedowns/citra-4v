@@ -6,7 +6,7 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.R;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class PicassoUtils {
         if (mPicassoInitialized) {
             return;
         }
-        Picasso picassoInstance = new Picasso.Builder(CitraApplication.getAppContext())
+        Picasso picassoInstance = new Picasso.Builder(Citra4VApplication.getAppContext())
                 .addRequestHandler(new GameIconRequestHandler())
                 .build();
 

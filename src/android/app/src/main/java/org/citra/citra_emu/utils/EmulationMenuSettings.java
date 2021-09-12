@@ -3,10 +3,10 @@ package org.citra.citra_emu.utils;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 
 public class EmulationMenuSettings {
-    private static SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+    private static SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
 
     // These must match what is defined in src/core/settings.h
     public static final int LayoutOption_Default = 0;

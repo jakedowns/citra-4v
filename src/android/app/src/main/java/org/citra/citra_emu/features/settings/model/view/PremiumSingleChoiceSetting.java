@@ -3,7 +3,7 @@ package org.citra.citra_emu.features.settings.model.view;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.features.settings.model.Setting;
 import org.citra.citra_emu.features.settings.ui.SettingsFragmentView;
@@ -15,7 +15,7 @@ public final class PremiumSingleChoiceSetting extends SettingsItem {
     private int mValuesId;
     private SettingsFragmentView mView;
 
-    private static SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+    private static SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
 
     public PremiumSingleChoiceSetting(String key, String section, int titleId, int descriptionId,
                                       int choicesId, int valuesId, int defaultValue, Setting setting, SettingsFragmentView view) {
@@ -49,7 +49,7 @@ public final class PremiumSingleChoiceSetting extends SettingsItem {
         final SharedPreferences.Editor editor = mPreferences.edit();
         editor.putInt(getKey(), selection);
         editor.apply();
-        mView.showToastMessage(CitraApplication.getAppContext().getString(R.string.design_updated), false);
+        mView.showToastMessage(Citra4VApplication.getAppContext().getString(R.string.design_updated), false);
     }
 
     @Override

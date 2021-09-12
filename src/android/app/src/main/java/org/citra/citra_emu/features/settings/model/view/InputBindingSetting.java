@@ -6,7 +6,7 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.NativeLibrary;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.features.settings.model.Setting;
@@ -201,7 +201,7 @@ public final class InputBindingSetting extends SettingsItem {
      */
     public void removeOldMapping() {
         // Get preferences editor
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
         SharedPreferences.Editor editor = preferences.edit();
 
         // Try remove all possible keys we wrote for this setting
@@ -250,7 +250,7 @@ public final class InputBindingSetting extends SettingsItem {
      */
     private void WriteButtonMapping(String key) {
         // Get preferences editor
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
         SharedPreferences.Editor editor = preferences.edit();
 
         // Remove mapping for another setting using this input
@@ -278,7 +278,7 @@ public final class InputBindingSetting extends SettingsItem {
      */
     private void WriteAxisMapping(int axis, int value) {
         // Get preferences editor
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
         SharedPreferences.Editor editor = preferences.edit();
 
         // Cleanup old mapping
@@ -302,7 +302,7 @@ public final class InputBindingSetting extends SettingsItem {
      */
     public void onKeyInput(KeyEvent keyEvent) {
         if (!IsButtonMappingSupported()) {
-            Toast.makeText(CitraApplication.getAppContext(), R.string.input_message_analog_only, Toast.LENGTH_LONG).show();
+            Toast.makeText(Citra4VApplication.getAppContext(), R.string.input_message_analog_only, Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -324,11 +324,11 @@ public final class InputBindingSetting extends SettingsItem {
     public void onMotionInput(InputDevice device, InputDevice.MotionRange motionRange,
                               char axisDir) {
         if (!IsAxisMappingSupported()) {
-            Toast.makeText(CitraApplication.getAppContext(), R.string.input_message_button_only, Toast.LENGTH_LONG).show();
+            Toast.makeText(Citra4VApplication.getAppContext(), R.string.input_message_button_only, Toast.LENGTH_LONG).show();
             return;
         }
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
         SharedPreferences.Editor editor = preferences.edit();
 
         int button;
@@ -354,7 +354,7 @@ public final class InputBindingSetting extends SettingsItem {
      * Sets the string to use in the configuration UI for the gamepad input.
      */
     private StringSetting setUiString(String ui) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CitraApplication.getAppContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
         SharedPreferences.Editor editor = preferences.edit();
 
         if (getSetting() == null) {

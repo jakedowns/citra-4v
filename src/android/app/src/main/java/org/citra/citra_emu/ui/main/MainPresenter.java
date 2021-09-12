@@ -3,7 +3,7 @@ package org.citra.citra_emu.ui.main;
 import android.os.SystemClock;
 
 import org.citra.citra_emu.BuildConfig;
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.features.settings.model.Settings;
 import org.citra.citra_emu.features.settings.utils.SettingsFile;
@@ -75,7 +75,7 @@ public final class MainPresenter {
     }
 
     public void refeshGameList() {
-        GameDatabase databaseHelper = CitraApplication.databaseHelper;
+        GameDatabase databaseHelper = Citra4VApplication.databaseHelper;
         databaseHelper.scanLibrary(databaseHelper.getWritableDatabase());
         mView.refresh();
     }

@@ -14,9 +14,9 @@ import org.citra.citra_emu.model.GameDatabase;
 import org.citra.citra_emu.utils.DirectoryInitialization;
 import org.citra.citra_emu.utils.PermissionsHandler;
 
-public class CitraApplication extends Application {
+public class Citra4VApplication extends Application {
     public static GameDatabase databaseHelper;
-    private static CitraApplication application;
+    private static Citra4VApplication application;
 
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because

@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import org.citra.citra_emu.CitraApplication;
+import org.citra.citra_emu.Citra4VApplication;
 import org.citra.citra_emu.NativeLibrary;
 import org.citra.citra_emu.R;
 import org.citra.citra_emu.activities.EmulationActivity;
@@ -107,14 +107,14 @@ public final class SoftwareKeyboard {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.leftMargin = params.rightMargin =
-                    CitraApplication.getAppContext().getResources().getDimensionPixelSize(
+                    Citra4VApplication.getAppContext().getResources().getDimensionPixelSize(
                             R.dimen.dialog_margin);
 
             KeyboardConfig config = Objects.requireNonNull(
                     (KeyboardConfig) Objects.requireNonNull(getArguments()).getSerializable("config"));
 
             // Set up the input
-            EditText editText = new EditText(CitraApplication.getAppContext());
+            EditText editText = new EditText(Citra4VApplication.getAppContext());
             editText.setHint(config.hint_text);
             editText.setSingleLine(!config.multiline_mode);
             editText.setLayoutParams(params);
@@ -254,7 +254,7 @@ public final class SoftwareKeyboard {
 
     public static void ShowError(String error) {
         NativeLibrary.displayAlertMsg(
-                CitraApplication.getAppContext().getResources().getString(R.string.software_keyboard),
+                Citra4VApplication.getAppContext().getResources().getString(R.string.software_keyboard),
                 error, false);
     }
 

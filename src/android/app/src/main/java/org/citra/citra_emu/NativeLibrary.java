@@ -26,10 +26,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import org.citra.citra_emu.activities.EmulationActivity;
-import org.citra.citra_emu.applets.SoftwareKeyboard;
 import org.citra.citra_emu.utils.EmulationMenuSettings;
 import org.citra.citra_emu.utils.Log;
-import org.citra.citra_emu.utils.PermissionsHandler;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
@@ -327,7 +325,7 @@ public final class NativeLibrary {
     }
 
     public static boolean isPortraitMode() {
-        return CitraApplication.getAppContext().getResources().getConfiguration().orientation ==
+        return Citra4VApplication.getAppContext().getResources().getConfiguration().orientation ==
                 Configuration.ORIENTATION_PORTRAIT;
     }
 
@@ -433,10 +431,10 @@ public final class NativeLibrary {
         alertPromptButton = 0;
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.leftMargin = params.rightMargin = CitraApplication.getAppContext().getResources().getDimensionPixelSize(R.dimen.dialog_margin);
+        params.leftMargin = params.rightMargin = Citra4VApplication.getAppContext().getResources().getDimensionPixelSize(R.dimen.dialog_margin);
 
         // Set up the input
-        alertPromptEditText = new EditText(CitraApplication.getAppContext());
+        alertPromptEditText = new EditText(Citra4VApplication.getAppContext());
         alertPromptEditText.setText(text);
         alertPromptEditText.setSingleLine();
         alertPromptEditText.setLayoutParams(params);
