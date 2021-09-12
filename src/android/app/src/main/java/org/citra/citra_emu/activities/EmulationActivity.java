@@ -409,6 +409,7 @@ public final class EmulationActivity extends AppCompatActivity
         menu.findItem(R.id.menu_emulation_show_overlay).setChecked(EmulationMenuSettings.getShowOverlay());
         menu.findItem(R.id.menu_emulation_vibrate_on_release).setChecked(EmulationMenuSettings.getVibrateOnReleaseEnable());
         menu.findItem(R.id.menu_emulation_face_button_slide_enable).setChecked(EmulationMenuSettings.getFaceButtonSlideEnable());
+        menu.findItem(R.id.menu_emulation_toggle_depth_slider).setChecked(EmulationMenuSettings.getDepthSliderEnable());
 
         return true;
     }
