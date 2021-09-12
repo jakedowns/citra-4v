@@ -95,4 +95,15 @@ public class EmulationMenuSettings {
         editor.putBoolean("EmulationMenuSettings_FaceButtonSlideEnable", value);
         editor.apply();
     }
+
+    public static boolean getDepthSliderEnable() {
+        return mPreferences.getBoolean("buttonToggle13", false);
+        //return mPreferences.getBoolean("EmulationMenuSettings_DepthSliderEnable", false);
+    }
+    public static void setDepthSliderEnable(boolean value) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putBoolean("buttonToggle13", value);
+        //editor.putBoolean("EmulationMenuSettings_DepthSliderEnable", value);
+        editor.apply();
+    }
 }
