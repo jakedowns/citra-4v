@@ -934,6 +934,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener {
         overlayButtons.clear();
         overlayDpads.clear();
         overlayJoysticks.clear();
+        overlaySlider = null;
 
         String orientation = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
                 ? "-Portrait"
