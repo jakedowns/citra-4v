@@ -217,7 +217,6 @@ public final class EmulationActivity extends AppCompatActivity
         mSettingsViewModel.registerListenerActivity(this);
         mSettingsViewModel.loadSettingsFile(this);
 
-        // TODO if device is LitByLeia
         mIsDeviceCurrentlyInPortraitMode = IsPortraitCurrentOrientation();
         mLeiaQuery = new SimpleDisplayQuery(this);
         mDisplayManager = LeiaSDK.getDisplayManager(this);

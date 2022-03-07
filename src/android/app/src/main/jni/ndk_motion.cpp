@@ -63,7 +63,13 @@ class NDKMotion final : public Input::MotionDevice {
     }
 
     void Construct() {
+        int api_version = android_get_device_api_level();
+        if(api_version < 26){
+            return;
+        }
+        #ifdef ASensorManager_getInstanceForPackage
         sensor_manager = ASensorManager_getInstanceForPackage("org.citra.citra_emu");
+        #endif
         looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
         if (!sensor_manager || !looper) {
             LOG_CRITICAL(Input, "Could not retrieve sensor manager");
