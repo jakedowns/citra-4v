@@ -68,7 +68,7 @@ class NDKMotion final : public Input::MotionDevice {
             return;
         }
         #ifdef ASensorManager_getInstanceForPackage
-        sensor_manager = ASensorManager_getInstanceForPackage("org.citra.citra_emu");
+        sensor_manager = ASensorManager_getInstanceForPackage("org.citra.citra_leia");
         #endif
         looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
         if (!sensor_manager || !looper) {

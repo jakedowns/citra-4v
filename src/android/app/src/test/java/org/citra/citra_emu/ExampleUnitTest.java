@@ -1,4 +1,4 @@
-package org.citra.citra_emu;
+package org.citra.citra_leia;
 
 import org.junit.Test;
 

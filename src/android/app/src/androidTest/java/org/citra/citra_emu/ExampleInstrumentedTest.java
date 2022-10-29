@@ -1,4 +1,4 @@
-package org.citra.citra_emu;
+package org.citra.citra_leia;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("org.citra.citra_emu", appContext.getPackageName());
+        assertEquals("org.citra.citra_leia", appContext.getPackageName());
     }
 }

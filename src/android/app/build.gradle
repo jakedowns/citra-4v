@@ -35,8 +35,7 @@ android {
 
     defaultConfig {
         // TODO If this is ever modified, change application_id in strings.xml
-        applicationId "org.citra.citra_emu"
-        minSdkVersion 24
+        applicationId "org.citra.citra_leia"
         targetSdkVersion 29
         versionCode autoVersion
         versionName getVersion()
@@ -96,6 +95,8 @@ android {
     }
 
     defaultConfig {
+
+        minSdk 26
         externalNativeBuild {
             cmake {
                 arguments "-DENABLE_QT=0", // Don't use QT

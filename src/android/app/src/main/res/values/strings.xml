@@ -2,7 +2,7 @@
 <resources>
 
     <!-- General application strings -->
-    <string name="app_name" translatable="false">Citra4VBeta</string>
+    <string name="app_name" translatable="false">Citra 3D</string>
     <string name="app_disclaimer">This software will run games for the Nintendo 3DS handheld game console. No game titles are included.\n\nBefore you run, please place your rightfully owned 3DS game files onto your device storage.</string>
     <string name="app_notification_channel_name" translatable="false">Citra</string>
     <string name="app_notification_channel_id" translatable="false">Citra</string>

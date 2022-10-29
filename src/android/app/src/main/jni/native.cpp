@@ -109,7 +109,7 @@ static jobject ToJavaCoreError(Core::System::ResultStatus result) {
     const jclass core_error_class = IDCache::GetCoreErrorClass();
     return env->GetStaticObjectField(
         core_error_class, env->GetStaticFieldID(core_error_class, name,
-                                                "Lorg/citra/citra_emu/NativeLibrary$CoreError;"));
+                                                "Lorg/citra/citra_1leia/NativeLibrary$CoreError;"));
 }
 
 static bool HandleCoreError(Core::System::ResultStatus result, const std::string& details) {
@@ -266,7 +266,7 @@ static Core::System::ResultStatus RunCitra(const std::string& filepath) {
 
 extern "C" {
 
-void Java_org_citra_citra_1emu_NativeLibrary_SurfaceChanged(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_SurfaceChanged(JNIEnv* env,
                                                             [[maybe_unused]] jclass clazz,
                                                             jobject surf) {
     s_surf = ANativeWindow_fromSurface(env, surf);
@@ -278,7 +278,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_SurfaceChanged(JNIEnv* env,
     LOG_INFO(Frontend, "Surface changed");
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_SurfaceDestroyed(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_SurfaceDestroyed(JNIEnv* env,
                                                               [[maybe_unused]] jclass clazz) {
     ANativeWindow_release(s_surf);
     s_surf = nullptr;
@@ -287,14 +287,14 @@ void Java_org_citra_citra_1emu_NativeLibrary_SurfaceDestroyed(JNIEnv* env,
     }
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_DoFrame(JNIEnv* env, [[maybe_unused]] jclass clazz) {
+void Java_org_citra_citra_1leia_NativeLibrary_DoFrame(JNIEnv* env, [[maybe_unused]] jclass clazz) {
     if (stop_run || pause_emulation) {
         return;
     }
     window->TryPresenting();
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_NotifyOrientationChange(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_NotifyOrientationChange(JNIEnv* env,
                                                                      [[maybe_unused]] jclass clazz,
                                                                      jint layout_option,
                                                                      jint rotation) {
@@ -306,7 +306,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_NotifyOrientationChange(JNIEnv* env
     Camera::NDK::g_rotation = rotation;
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_SwapScreens(JNIEnv* env, [[maybe_unused]] jclass clazz,
+void Java_org_citra_citra_1leia_NativeLibrary_SwapScreens(JNIEnv* env, [[maybe_unused]] jclass clazz,
                                                          jboolean swap_screens, jint rotation) {
     Settings::values.swap_screen = swap_screens;
     if (VideoCore::g_renderer) {
@@ -316,13 +316,13 @@ void Java_org_citra_citra_1emu_NativeLibrary_SwapScreens(JNIEnv* env, [[maybe_un
     Camera::NDK::g_rotation = rotation;
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_SetUserDirectory(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_SetUserDirectory(JNIEnv* env,
                                                               [[maybe_unused]] jclass clazz,
                                                               jstring j_directory) {
     FileUtil::SetCurrentDir(GetJString(env, j_directory));
 }
 
-jobjectArray Java_org_citra_citra_1emu_NativeLibrary_GetInstalledGamePaths(
+jobjectArray Java_org_citra_citra_1leia_NativeLibrary_GetInstalledGamePaths(
     JNIEnv* env, [[maybe_unused]] jclass clazz) {
     std::vector<std::string> games;
     const FileUtil::DirectoryEntryCallable ScanDir =
@@ -359,20 +359,20 @@ jobjectArray Java_org_citra_citra_1emu_NativeLibrary_GetInstalledGamePaths(
 }
 
 // TODO(xperia64): ensure these cannot be called in an invalid state (e.g. after StopEmulation)
-void Java_org_citra_citra_1emu_NativeLibrary_UnPauseEmulation(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_UnPauseEmulation(JNIEnv* env,
                                                               [[maybe_unused]] jclass clazz) {
     pause_emulation = false;
     running_cv.notify_all();
     InputManager::NDKMotionHandler()->EnableSensors();
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_PauseEmulation(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_PauseEmulation(JNIEnv* env,
                                                             [[maybe_unused]] jclass clazz) {
     pause_emulation = true;
     InputManager::NDKMotionHandler()->DisableSensors();
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_StopEmulation(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_StopEmulation(JNIEnv* env,
                                                            [[maybe_unused]] jclass clazz) {
     stop_run = true;
     pause_emulation = false;
@@ -380,12 +380,12 @@ void Java_org_citra_citra_1emu_NativeLibrary_StopEmulation(JNIEnv* env,
     running_cv.notify_all();
 }
 
-jboolean Java_org_citra_citra_1emu_NativeLibrary_IsRunning(JNIEnv* env,
+jboolean Java_org_citra_citra_1leia_NativeLibrary_IsRunning(JNIEnv* env,
                                                            [[maybe_unused]] jclass clazz) {
     return static_cast<jboolean>(!stop_run);
 }
 
-jboolean Java_org_citra_citra_1emu_NativeLibrary_onGamePadEvent(JNIEnv* env,
+jboolean Java_org_citra_citra_1leia_NativeLibrary_onGamePadEvent(JNIEnv* env,
                                                                 [[maybe_unused]] jclass clazz,
                                                                 jstring j_device, jint j_button,
                                                                 jint action) {
@@ -399,7 +399,7 @@ jboolean Java_org_citra_citra_1emu_NativeLibrary_onGamePadEvent(JNIEnv* env,
     return static_cast<jboolean>(consumed);
 }
 
-jboolean Java_org_citra_citra_1emu_NativeLibrary_onGamePadMoveEvent(JNIEnv* env,
+jboolean Java_org_citra_citra_1leia_NativeLibrary_onGamePadMoveEvent(JNIEnv* env,
                                                                     [[maybe_unused]] jclass clazz,
                                                                     jstring j_device, jint axis,
                                                                     jfloat x, jfloat y) {
@@ -419,7 +419,7 @@ jboolean Java_org_citra_citra_1emu_NativeLibrary_onGamePadMoveEvent(JNIEnv* env,
     return static_cast<jboolean>(InputManager::AnalogHandler()->MoveJoystick(axis, x, y));
 }
 
-jboolean Java_org_citra_citra_1emu_NativeLibrary_onGamePadAxisEvent(JNIEnv* env,
+jboolean Java_org_citra_citra_1leia_NativeLibrary_onGamePadAxisEvent(JNIEnv* env,
                                                                     [[maybe_unused]] jclass clazz,
                                                                     jstring j_device, jint axis_id,
                                                                     jfloat axis_val) {
@@ -427,7 +427,7 @@ jboolean Java_org_citra_citra_1emu_NativeLibrary_onGamePadAxisEvent(JNIEnv* env,
         InputManager::ButtonHandler()->AnalogButtonEvent(axis_id, axis_val));
 }
 
-jboolean Java_org_citra_citra_1emu_NativeLibrary_onTouchEvent(JNIEnv* env,
+jboolean Java_org_citra_citra_1leia_NativeLibrary_onTouchEvent(JNIEnv* env,
                                                               [[maybe_unused]] jclass clazz,
                                                               jfloat x, jfloat y,
                                                               jboolean pressed) {
@@ -435,13 +435,13 @@ jboolean Java_org_citra_citra_1emu_NativeLibrary_onTouchEvent(JNIEnv* env,
         window->OnTouchEvent(static_cast<int>(x + 0.5), static_cast<int>(y + 0.5), pressed));
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_onTouchMoved(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_onTouchMoved(JNIEnv* env,
                                                           [[maybe_unused]] jclass clazz, jfloat x,
                                                           jfloat y) {
     window->OnTouchMoved((int)x, (int)y);
 }
 
-jintArray Java_org_citra_citra_1emu_NativeLibrary_GetIcon(JNIEnv* env,
+jintArray Java_org_citra_citra_1leia_NativeLibrary_GetIcon(JNIEnv* env,
                                                           [[maybe_unused]] jclass clazz,
                                                           jstring j_file) {
     std::string filepath = GetJString(env, j_file);
@@ -458,26 +458,26 @@ jintArray Java_org_citra_citra_1emu_NativeLibrary_GetIcon(JNIEnv* env,
     return icon;
 }
 
-jstring Java_org_citra_citra_1emu_NativeLibrary_GetTitle(JNIEnv* env, [[maybe_unused]] jclass clazz,
+jstring Java_org_citra_citra_1leia_NativeLibrary_GetTitle(JNIEnv* env, [[maybe_unused]] jclass clazz,
                                                          jstring j_filename) {
     std::string filepath = GetJString(env, j_filename);
     auto Title = GameInfo::GetTitle(filepath);
     return env->NewStringUTF(Common::UTF16ToUTF8(Title).data());
 }
 
-jstring Java_org_citra_citra_1emu_NativeLibrary_GetDescription(JNIEnv* env,
+jstring Java_org_citra_citra_1leia_NativeLibrary_GetDescription(JNIEnv* env,
                                                                [[maybe_unused]] jclass clazz,
                                                                jstring j_filename) {
     return j_filename;
 }
 
-jstring Java_org_citra_citra_1emu_NativeLibrary_GetGameId(JNIEnv* env,
+jstring Java_org_citra_citra_1leia_NativeLibrary_GetGameId(JNIEnv* env,
                                                           [[maybe_unused]] jclass clazz,
                                                           jstring j_filename) {
     return j_filename;
 }
 
-jstring Java_org_citra_citra_1emu_NativeLibrary_GetRegions(JNIEnv* env,
+jstring Java_org_citra_citra_1leia_NativeLibrary_GetRegions(JNIEnv* env,
                                                            [[maybe_unused]] jclass clazz,
                                                            jstring j_filename) {
     std::string filepath = GetJString(env, j_filename);
@@ -487,7 +487,7 @@ jstring Java_org_citra_citra_1emu_NativeLibrary_GetRegions(JNIEnv* env,
     return env->NewStringUTF(regions.c_str());
 }
 
-jstring Java_org_citra_citra_1emu_NativeLibrary_GetCompany(JNIEnv* env,
+jstring Java_org_citra_citra_1leia_NativeLibrary_GetCompany(JNIEnv* env,
                                                            [[maybe_unused]] jclass clazz,
                                                            jstring j_filename) {
     std::string filepath = GetJString(env, j_filename);
@@ -495,26 +495,26 @@ jstring Java_org_citra_citra_1emu_NativeLibrary_GetCompany(JNIEnv* env,
     return env->NewStringUTF(Common::UTF16ToUTF8(publisher).data());
 }
 
-jstring Java_org_citra_citra_1emu_NativeLibrary_GetGitRevision(JNIEnv* env,
+jstring Java_org_citra_citra_1leia_NativeLibrary_GetGitRevision(JNIEnv* env,
                                                                [[maybe_unused]] jclass clazz) {
     return nullptr;
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_CreateConfigFile(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_CreateConfigFile(JNIEnv* env,
                                                               [[maybe_unused]] jclass clazz) {
     Config{};
 }
 
-jint Java_org_citra_citra_1emu_NativeLibrary_DefaultCPUCore(JNIEnv* env,
+jint Java_org_citra_citra_1leia_NativeLibrary_DefaultCPUCore(JNIEnv* env,
                                                             [[maybe_unused]] jclass clazz) {
     return 0;
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_Run__Ljava_lang_String_2Ljava_lang_String_2Z(
+void Java_org_citra_citra_1leia_NativeLibrary_Run__Ljava_lang_String_2Ljava_lang_String_2Z(
     JNIEnv* env, [[maybe_unused]] jclass clazz, jstring j_file, jstring j_savestate,
     jboolean j_delete_savestate) {}
 
-void Java_org_citra_citra_1emu_NativeLibrary_ReloadSettings(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_ReloadSettings(JNIEnv* env,
                                                             [[maybe_unused]] jclass clazz) {
     Config{};
     Core::System& system{Core::System::GetInstance()};
@@ -529,7 +529,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_ReloadSettings(JNIEnv* env,
     Settings::Apply();
 }
 
-jstring Java_org_citra_citra_1emu_NativeLibrary_GetUserSetting(JNIEnv* env,
+jstring Java_org_citra_citra_1leia_NativeLibrary_GetUserSetting(JNIEnv* env,
                                                                [[maybe_unused]] jclass clazz,
                                                                jstring j_game_id, jstring j_section,
                                                                jstring j_key) {
@@ -547,7 +547,7 @@ jstring Java_org_citra_citra_1emu_NativeLibrary_GetUserSetting(JNIEnv* env,
     return env->NewStringUTF("");
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_SetUserSetting(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_SetUserSetting(JNIEnv* env,
                                                             [[maybe_unused]] jclass clazz,
                                                             jstring j_game_id, jstring j_section,
                                                             jstring j_key, jstring j_value) {
@@ -565,7 +565,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_SetUserSetting(JNIEnv* env,
     env->ReleaseStringUTFChars(j_value, value.data());
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_InitGameIni(JNIEnv* env, [[maybe_unused]] jclass clazz,
+void Java_org_citra_citra_1leia_NativeLibrary_InitGameIni(JNIEnv* env, [[maybe_unused]] jclass clazz,
                                                          jstring j_game_id) {
     std::string_view game_id = env->GetStringUTFChars(j_game_id, 0);
 
@@ -574,7 +574,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_InitGameIni(JNIEnv* env, [[maybe_un
     env->ReleaseStringUTFChars(j_game_id, game_id.data());
 }
 
-jdoubleArray Java_org_citra_citra_1emu_NativeLibrary_GetPerfStats(JNIEnv* env,
+jdoubleArray Java_org_citra_citra_1leia_NativeLibrary_GetPerfStats(JNIEnv* env,
                                                                   [[maybe_unused]] jclass clazz) {
     auto& core = Core::System::GetInstance();
     jdoubleArray j_stats = env->NewDoubleArray(4);
@@ -592,14 +592,14 @@ jdoubleArray Java_org_citra_citra_1emu_NativeLibrary_GetPerfStats(JNIEnv* env,
     return j_stats;
 }
 
-void Java_org_citra_citra_1emu_utils_DirectoryInitialization_SetSysDirectory(
+void Java_org_citra_citra_1leia_utils_DirectoryInitialization_SetSysDirectory(
     JNIEnv* env, [[maybe_unused]] jclass clazz, jstring j_path) {
     std::string_view path = env->GetStringUTFChars(j_path, 0);
 
     env->ReleaseStringUTFChars(j_path, path.data());
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_Run__Ljava_lang_String_2(JNIEnv* env,
+void Java_org_citra_citra_1leia_NativeLibrary_Run__Ljava_lang_String_2(JNIEnv* env,
                                                                       [[maybe_unused]] jclass clazz,
                                                                       jstring j_path) {
     const std::string path = GetJString(env, j_path);
@@ -616,7 +616,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_Run__Ljava_lang_String_2(JNIEnv* en
     }
 }
 
-jobjectArray Java_org_citra_citra_1emu_NativeLibrary_GetTextureFilterNames(JNIEnv* env,
+jobjectArray Java_org_citra_citra_1leia_NativeLibrary_GetTextureFilterNames(JNIEnv* env,
                                                                            jclass clazz) {
     auto names = OpenGL::TextureFilterer::GetFilterNames();
     jobjectArray ret = (jobjectArray)env->NewObjectArray(static_cast<jsize>(names.size()),
@@ -627,13 +627,13 @@ jobjectArray Java_org_citra_citra_1emu_NativeLibrary_GetTextureFilterNames(JNIEn
     return ret;
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_ReloadCameraDevices(JNIEnv* env, jclass clazz) {
+void Java_org_citra_citra_1leia_NativeLibrary_ReloadCameraDevices(JNIEnv* env, jclass clazz) {
     if (g_ndk_factory) {
         g_ndk_factory->ReloadCameraDevices();
     }
 }
 
-jboolean Java_org_citra_citra_1emu_NativeLibrary_LoadAmiibo(JNIEnv* env, jclass clazz,
+jboolean Java_org_citra_citra_1leia_NativeLibrary_LoadAmiibo(JNIEnv* env, jclass clazz,
                                                             jbyteArray bytes) {
     Core::System& system{Core::System::GetInstance()};
     Service::SM::ServiceManager& sm = system.ServiceManager();
@@ -650,7 +650,7 @@ jboolean Java_org_citra_citra_1emu_NativeLibrary_LoadAmiibo(JNIEnv* env, jclass 
     return static_cast<jboolean>(true);
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_RemoveAmiibo(JNIEnv* env, jclass clazz) {
+void Java_org_citra_citra_1leia_NativeLibrary_RemoveAmiibo(JNIEnv* env, jclass clazz) {
     Core::System& system{Core::System::GetInstance()};
     Service::SM::ServiceManager& sm = system.ServiceManager();
     auto nfc = sm.GetService<Service::NFC::Module::Interface>("nfc:u");
@@ -661,7 +661,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_RemoveAmiibo(JNIEnv* env, jclass cl
     nfc->RemoveAmiibo();
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_InstallCIAS(JNIEnv* env, [[maybe_unused]] jclass clazz,
+void Java_org_citra_citra_1leia_NativeLibrary_InstallCIAS(JNIEnv* env, [[maybe_unused]] jclass clazz,
                                                          jobjectArray path) {
     const jsize count{env->GetArrayLength(path)};
     std::vector<std::string> paths;
@@ -685,7 +685,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_InstallCIAS(JNIEnv* env, [[maybe_un
         thread.join();
 }
 
-jobjectArray Java_org_citra_citra_1emu_NativeLibrary_GetSavestateInfo(
+jobjectArray Java_org_citra_citra_1leia_NativeLibrary_GetSavestateInfo(
     JNIEnv* env, [[maybe_unused]] jclass clazz) {
     const jclass date_class = env->FindClass("java/util/Date");
     const auto date_constructor = env->GetMethodID(date_class, "<init>", "(J)V");
@@ -719,11 +719,11 @@ jobjectArray Java_org_citra_citra_1emu_NativeLibrary_GetSavestateInfo(
     return array;
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_SaveState(JNIEnv* env, jclass clazz, jint slot) {
+void Java_org_citra_citra_1leia_NativeLibrary_SaveState(JNIEnv* env, jclass clazz, jint slot) {
     Core::System::GetInstance().SendSignal(Core::System::Signal::Save, slot);
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_LoadState(JNIEnv* env, jclass clazz, jint slot) {
+void Java_org_citra_citra_1leia_NativeLibrary_LoadState(JNIEnv* env, jclass clazz, jint slot) {
     Core::System::GetInstance().SendSignal(Core::System::Signal::Load, slot);
 }
 
