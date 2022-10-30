@@ -13,7 +13,9 @@ For now, this fork is maintained separately.
 
 **Fair Warning**: Citra's Official Discord rules prohibit discussion of unofficial builds of Citra.
 
-**If you enjoy this Fork,** please consider supporting me with a tip on [Ko-fi.com/jakedowns](https://ko-fi.com/jakedowns). Every little bit helps me devote more time to side-projects such as this.
+**If you enjoy this Fork,** please consider supporting me with a tip, every little bit helps me devote more time to side-projects such as this.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H0G08KQ) 
 
 <br/><br/><br/><br/>
 ## Original Readme.md:
