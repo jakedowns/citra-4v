@@ -1,3 +1,21 @@
+# Citra Android w/ Leia Lume Pad Support
+
+This is a special fork of Citra Android that adds support for the [Leia Lume Pad Lightfield Tablet](https://www.amazon.com/stores/LumePad/page/C4A262AE-6667-4151-ABC7-BD970B7A35EC?ref_=ast_bln)
+
+![image](https://user-images.githubusercontent.com/1683122/198857908-4e18be58-1270-4ebf-835e-b3157e2f2e20.png)
+
+
+Unfortunately, this fork cannot be merged into Citra Android mainline since the Lume Pad SDK does not have an open source license.
+Hopefully, in the future, an open-source version can be put together to enable this fork to be merged to mainline.
+For now, this fork is maintained separately.
+
+**If you have issues using this version of Citra, please add an issue on our [Issues Page](https://github.com/jakedowns/citra-4v/issues)**
+
+**Fair Warning**: Citra's Official Discord rules prohibit discussion of unofficial builds of Citra.
+
+<br/><br/><br/><br/>
+## Original Readme.md:
+
 **BEFORE FILING AN ISSUE, READ THE RELEVANT SECTION IN THE [CONTRIBUTING](https://github.com/citra-emu/citra/wiki/Contributing#reporting-issues) FILE!!!**
 
 Citra
