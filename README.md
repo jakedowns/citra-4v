@@ -9,7 +9,7 @@ Unfortunately, this fork cannot be merged into Citra Android mainline since the 
 Hopefully, in the future, an open-source version can be put together to enable this fork to be merged to mainline.
 For now, this fork is maintained separately.
 
-**If you have issues using this version of Citra, please add an issue on our [Issues Page](https://github.com/jakedowns/citra-4v/issues)**
+**If you have issues using this version of Citra, please check our [Discussions Page](https://github.com/jakedowns/citra-4v/discussions) or add an issue on our [Issues Page](https://github.com/jakedowns/citra-4v/issues)**
 
 **Fair Warning**: Citra's Official Discord rules prohibit discussion of unofficial builds of Citra.
 
