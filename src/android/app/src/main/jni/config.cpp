@@ -24,7 +24,7 @@
 
 Config::Config() {
     // TODO: Don't hardcode the path; let the frontend decide where to put the config files.
-    sdl2_config_loc = FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir) + "config.ini";
+    sdl2_config_loc = FileUtil::GetUserPath(FileUtil::UserPath::ConfigDir) + "config-leia.ini";
     sdl2_config = std::make_unique<INIReader>(sdl2_config_loc);
 
     Reload();
@@ -262,6 +262,9 @@ void Config::ReadValues() {
         bool use_lle = sdl2_config->GetBoolean("Debugging", "LLE\\" + service_module.name, false);
         Settings::values.lle_modules.emplace(service_module.name, use_lle);
     }
+
+    Settings::values.use_sus_perf_mode =
+            static_cast<u8>(sdl2_config->GetInteger("Debugging", "use_sus_perf_mode", 0));
 
     // Web Service
     Settings::values.enable_telemetry =

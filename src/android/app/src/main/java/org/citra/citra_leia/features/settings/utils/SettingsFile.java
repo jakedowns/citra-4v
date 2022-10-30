@@ -32,7 +32,7 @@ import java.util.TreeSet;
  * Contains static methods for interacting with .ini files in which settings are stored.
  */
 public final class SettingsFile {
-    public static final String FILE_NAME_CONFIG = "config";
+    public static final String FILE_NAME_CONFIG = "config-leia";
 
     public static final String KEY_CPU_JIT = "use_cpu_jit";
 

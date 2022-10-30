@@ -13,6 +13,7 @@ public class ThemeUtil {
     private static SharedPreferences mPreferences = PreferenceManager.getDefaultSharedPreferences(Citra4VApplication.getAppContext());
 
     private static void applyTheme(int designValue) {
+        designValue = 1; // force dark mode?
         switch (designValue) {
             case 0:
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);

@@ -166,11 +166,11 @@ bg_green =
 # 4: Reverse Interlaced
 # 5: Cardboard VR
 # 6: LitByLeia
-render_3d =
+render_3d = 6
 
 # Change 3D Intensity
 # 0 - 100: Intensity. 0 (default)
-factor_3d =
+factor_3d = 100
 
 # The name of the post processing shader to apply.
 # Loaded from shaders if render_3d is off or side by side.
@@ -314,6 +314,8 @@ record_frame_times =
 use_gdbstub=false
 gdbstub_port=24689
 # To LLE a service module add "LLE\<module name>=true"
+# android option
+use_sus_perf_mode=false
 
 [WebService]
 # Whether or not to enable telemetry

@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class Settings {
-    public static final String SECTION_PREMIUM = "Premium";
+    public static final String SECTION_PREMIUM = "Bonus";
     public static final String SECTION_CORE = "Core";
     public static final String SECTION_SYSTEM = "System";
     public static final String SECTION_CAMERA = "Camera";
@@ -23,6 +23,8 @@ public class Settings {
     public static final String SECTION_LAYOUT = "Layout";
     public static final String SECTION_AUDIO = "Audio";
     public static final String SECTION_DEBUG = "Debug";
+    public static final String SECTION_ABOUT = "About";
+    public static final String SECTION_SUPPORT = "Support";
 
     private String gameId;
 

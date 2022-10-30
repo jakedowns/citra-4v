@@ -47,7 +47,7 @@ public final class SettingsFragment extends Fragment implements SettingsFragment
         super.onAttach(context);
 
         mActivity = (SettingsActivityView) context;
-        mPresenter.onAttach();
+        mPresenter.onAttach(context);
     }
 
     @Override

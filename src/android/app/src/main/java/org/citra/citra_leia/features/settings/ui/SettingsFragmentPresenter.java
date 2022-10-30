@@ -6,6 +6,8 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.text.TextUtils;
+import android.content.Intent;
+import android.net.Uri;
 
 import org.citra.citra_leia.NativeLibrary;
 import org.citra.citra_leia.R;
@@ -40,6 +42,8 @@ public final class SettingsFragmentPresenter {
     private Settings mSettings;
     private ArrayList<SettingsItem> mSettingsList;
 
+    private Context mContext;
+
     public SettingsFragmentPresenter(SettingsFragmentView view) {
         mView = view;
     }
@@ -58,7 +62,8 @@ public final class SettingsFragmentPresenter {
      * won't, though; so rather than have the Activity reload from disk, have the fragment pass
      * the settings map back to the Activity.
      */
-    public void onAttach() {
+    public void onAttach(Context context) {
+        mContext = context;
         if (mSettings != null) {
             mView.passSettingsToActivity(mSettings);
         }
@@ -103,6 +108,8 @@ public final class SettingsFragmentPresenter {
             return;
         }
 
+        Intent browserIntent;
+
         switch (mMenuTag) {
             case SettingsFile.FILE_NAME_CONFIG:
                 addConfigSettings(sl);
@@ -131,6 +138,13 @@ public final class SettingsFragmentPresenter {
             case Settings.SECTION_DEBUG:
                 addDebugSettings(sl);
                 break;
+            case Settings.SECTION_ABOUT:
+                browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://ko-fi.com/jakedowns"));
+                mContext.startActivity(browserIntent);
+                break;
+            case Settings.SECTION_SUPPORT:
+                browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/jakedowns/citra-4v/issues"));
+                mContext.startActivity(browserIntent);
             default:
                 mView.showToastMessage("Unimplemented menu", false);
                 return;
@@ -151,6 +165,8 @@ public final class SettingsFragmentPresenter {
         sl.add(new SubmenuSetting(null, null, R.string.preferences_graphics, 0, Settings.SECTION_RENDERER));
         sl.add(new SubmenuSetting(null, null, R.string.preferences_audio, 0, Settings.SECTION_AUDIO));
         sl.add(new SubmenuSetting(null, null, R.string.preferences_debug, 0, Settings.SECTION_DEBUG));
+        sl.add(new SubmenuSetting(null, null, R.string.preferences_about, 0, Settings.SECTION_ABOUT));
+        sl.add(new SubmenuSetting(null, null, R.string.preferences_support, 0, Settings.SECTION_SUPPORT));
     }
 
     private void addPremiumSettings(ArrayList<SettingsItem> sl) {
@@ -161,12 +177,12 @@ public final class SettingsFragmentPresenter {
 
         sl.add(new PremiumHeader());
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            sl.add(new PremiumSingleChoiceSetting(SettingsFile.KEY_DESIGN, Settings.SECTION_PREMIUM, R.string.design, 0, R.array.designNames, R.array.designValues, 0, design, mView));
-        } else {
-            // Pre-Android 10 does not support System Default
-            sl.add(new PremiumSingleChoiceSetting(SettingsFile.KEY_DESIGN, Settings.SECTION_PREMIUM, R.string.design, 0, R.array.designNamesOld, R.array.designValuesOld, 0, design, mView));
-        }
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+//            sl.add(new PremiumSingleChoiceSetting(SettingsFile.KEY_DESIGN, Settings.SECTION_PREMIUM, R.string.design, 0, R.array.designNames, R.array.designValues, 0, design, mView));
+//        } else {
+//            // Pre-Android 10 does not support System Default
+//            sl.add(new PremiumSingleChoiceSetting(SettingsFile.KEY_DESIGN, Settings.SECTION_PREMIUM, R.string.design, 0, R.array.designNamesOld, R.array.designValuesOld, 0, design, mView));
+//        }
 
         String[] textureFilterNames = NativeLibrary.GetTextureFilterNames();
         Setting textureFilterName = premiumSection.getSetting(SettingsFile.KEY_TEXTURE_FILTER_NAME);

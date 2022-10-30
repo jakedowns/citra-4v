@@ -277,7 +277,6 @@ public final class EmulationActivity extends AppCompatActivity
                 getWindowManager().getDefaultDisplay().getRotation());
     }
 
-    @TargetApi(19)
     protected void onResume() {
         super.onResume();
 
@@ -1039,19 +1038,19 @@ public final class EmulationActivity extends AppCompatActivity
 
     public void Enable3D() {
         if (mDisplayManager != null) {
-            mDisplayManager.setBacklightMode(MODE_3D);
+            mDisplayManager.requestBacklightMode(MODE_3D);
         }
     }
 
     public void Disable3D() {
         if (mDisplayManager != null) {
-            mDisplayManager.setBacklightMode(MODE_2D);
+            mDisplayManager.requestBacklightMode(MODE_2D);
         }
     }
 
     private void SetBacklightMode(BacklightMode mode) {
         if (mDisplayManager != null) {
-            mDisplayManager.setBacklightMode(mode);
+            mDisplayManager.requestBacklightMode(mode);
         }
     }
 
@@ -1103,19 +1102,19 @@ public final class EmulationActivity extends AppCompatActivity
             if (rendererSection != null) {
                 Setting render3dMode = rendererSection.getSetting(SettingsFile.KEY_RENDER_3D);
                 if (render3dMode != null) {
-                    //Log.d("EmulationActivity:render3dMode",render3dMode.getValueAsString());
-                    //Log.d("EmulationActivity:render3dMode eq?",Boolean.toString(Integer.parseInt(render3dMode.getValueAsString()) == Integer.parseInt("6")));
+                    Log.debug("EmulationActivity:render3dMode "+render3dMode.getValueAsString());
+                    Log.debug("EmulationActivity:render3dMode eq? "+Integer.toString(Integer.parseInt(render3dMode.getValueAsString())));
                     if (render3dMode != null && Integer.parseInt(render3dMode.getValueAsString()) == Integer.parseInt("6")) {
                         mRenderModeIsLeia3d = true;
                     }
                 } else {
-                    //Log.d("EmulationActivity","render3dMode not set");
+                    Log.debug("EmulationActivity render3dMode not set");
                 }
             } else {
-                //Log.d("EmulationActivity","rendererSection null");
+                Log.debug("EmulationActivity rendererSection null");
             }
         } else {
-            //Log.d("EmulationActivity","settings not yet loaded");
+            Log.debug("EmulationActivity settings not yet loaded");
         }
 
         if (desired_state && mRenderModeIsLeia3d) {

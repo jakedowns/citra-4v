@@ -44,7 +44,8 @@ public class BillingManager implements PurchasesUpdatedListener {
     }
 
     static public boolean isPremiumCached() {
-        return mPreferences.getBoolean(SettingsFile.KEY_PREMIUM, false);
+        return true;
+        //mPreferences.getBoolean(SettingsFile.KEY_PREMIUM, false);
     }
 
     /**

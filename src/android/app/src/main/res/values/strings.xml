@@ -112,6 +112,7 @@
     <string name="premium_settings_upsell">Upgrade to Premium and support Citra!</string>
     <string name="premium_settings_upsell_description">With Premium, you will support the developers to continue improving Citra, and gain access to these exclusive features!</string>
     <string name="premium_settings_welcome">Welcome to Premium.</string>
+    <string name="premium_settings_bonus">Bonus</string>
     <string name="premium_settings_welcome_description">Thank you for your support!</string>
 
     <!-- Audio settings strings -->
@@ -133,6 +134,7 @@
     <!-- Add Directory Screen-->
     <string name="select_game_folder">Select Game Folder</string>
     <string name="install_cia_title">Install CIA</string>
+    <string name="add_directory_title">Add Directory Title</string>
 
     <!-- Preferences Screen -->
     <string name="preferences_settings">Settings</string>
@@ -231,4 +233,6 @@
     <string name="preparing_shaders">Preparing shaders</string>
     <string name="building_shaders">Building shaders</string>
     <string name="emulation_control_opacity">Adjust Opacity</string>
+    <string name="preferences_about">Lume Pad Support by @jakedowns | Support me on ko-fi ☕</string>
+    <string name="preferences_support">Need Help? File an issue on https://github.com/jakedowns/citra-4v/issues</string>
 </resources>

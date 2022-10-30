@@ -339,8 +339,8 @@ void Config::ReadLayoutValues() {
     qt_config->beginGroup(QStringLiteral("Layout"));
 
     Settings::values.render_3d = static_cast<Settings::StereoRenderOption>(
-        ReadSetting(QStringLiteral("render_3d"), 0).toInt());
-    Settings::values.factor_3d = ReadSetting(QStringLiteral("factor_3d"), 0).toInt();
+        ReadSetting(QStringLiteral("render_3d"), (int)Settings::StereoRenderOption::LitByLeia).toInt());
+    Settings::values.factor_3d = ReadSetting(QStringLiteral("factor_3d"), 100).toInt();
     Settings::values.pp_shader_name =
         ReadSetting(QStringLiteral("pp_shader_name"),
                     (Settings::values.render_3d == Settings::StereoRenderOption::Anaglyph)

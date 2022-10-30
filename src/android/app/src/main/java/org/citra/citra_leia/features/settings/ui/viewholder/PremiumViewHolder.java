@@ -46,12 +46,14 @@ public final class PremiumViewHolder extends SettingViewHolder {
      * Update the text shown to the user, based on whether Premium is active
      */
     private void updateText() {
-        if (MainActivity.isPremiumActive()) {
-            mHeaderName.setText(R.string.premium_settings_welcome);
-            mTextDescription.setText(R.string.premium_settings_welcome_description);
-        } else {
-            mHeaderName.setText(R.string.premium_settings_upsell);
-            mTextDescription.setText(R.string.premium_settings_upsell_description);
-        }
+        mHeaderName.setText(R.string.premium_settings_bonus);
+//        mTextDescription.setText(R.string.premium_settings_welcome_description);
+//        if (MainActivity.isPremiumActive()) {
+//            mHeaderName.setText(R.string.premium_settings_welcome);
+//            mTextDescription.setText(R.string.premium_settings_welcome_description);
+//        } else {
+//            mHeaderName.setText(R.string.premium_settings_upsell);
+//            mTextDescription.setText(R.string.premium_settings_upsell_description);
+//        }
     }
 }

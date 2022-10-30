@@ -263,6 +263,7 @@ struct Values {
     u16 gdbstub_port;
     std::string log_filter;
     std::unordered_map<std::string, bool> lle_modules;
+    bool use_sus_perf_mode; // android option
 
     // WebService
     bool enable_telemetry;
